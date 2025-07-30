@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ultimate Emojis
-// @version      0.1
+// @version      0.2
 // @description  Discord-style emoji/sticker/gif picker with favorites, pagination, search.
 // @author       ZukoXZoku
 // @match        https://aither.cc/*
@@ -17,6 +17,26 @@
 // @grant        GM_getValue
 // @connect      //url
 // ==/UserScript==
+
+
+
+/*
+-----------Bugs-----------
+
+1. Press 2 ctrl & alt & e times to open the menu bug fixed.
+
+
+-----------Removed-----------
+
+1. search bar on stickers tab & search bar on gifs tab
+
+
+-----------Added-----------
+
+1. Added Settings button
+
+*/
+
 
 (function () {
   'use strict';
@@ -99,7 +119,7 @@
       justify-content: start;
       overflow-y: auto;
       flex-grow: 1;
-      padding-right: 4px;
+      padding: 15px 0 15px 12px;
     }
 
     .uni-emoji-grid img {
@@ -324,14 +344,57 @@
   background: #404246;
   color: #fff;
 }
+
+
+
+.emojistab, .settingstab {
+  font-family: "gg sans", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: #fff;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  padding: 4px 12px;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: background 0.18s cubic-bezier(.4,0,.2,1),
+              color 0.18s cubic-bezier(.4,0,.2,1),
+              opacity 0.18s cubic-bezier(.4,0,.2,1);
+}
+
+.settingstab{
+margin:0 0 0 30%;
+}
+
+.emojistab:hover, .settingstab:hover {
+  background-color: #46484c;
+  color: #fff;
+  opacity: 1;
+}
+
+.settingstab.active,
+.giftab.active {
+  background: #46484c;
+  color: #fff;
+  opacity: 1;
+}
+
+.settingstab.active:hover,
+.giftab.active:hover {
+  background: #404246;
+  color: #fff;
+}
+
 `);
 
   // Insert base HTML with unique IDs and classes
     container.innerHTML = `
     <div class="topsearchbarbuttons">
-      <div class="giftab">Gifs</div>
+      <div class="giftab">GIFs</div>
       <div class="stickerstab">Stickers</div>
       <div class="emojistab active">Emojis</div>
+      <div class="settingstab" title="Settings"><i class="fa-solid fa-hammer" title="Settings"></i></div>
     </div>
     <div class="srchxbtn">
       <input type="text" id="uni-emoji-search" placeholder="Search emojis... (Right-click emoji to favorite)">
@@ -347,6 +410,9 @@
       <span style="font-size:22px; font-weight:600;">Coming soon!</span>
     </div>
         <div id="uni-gif-comingsoon" style="display:none; text-align:center; color:#b5bac1; font-size:18px; margin: 30px;">
+      <span style="font-size:22px; font-weight:600;">Coming soon!</span>
+    </div>
+        <div id="uni-settings-comingsoon" style="display:none; text-align:center; color:#b5bac1; font-size:18px; margin: 30px;">
       <span style="font-size:22px; font-weight:600;">Coming soon!</span>
     </div>
     `;
@@ -543,7 +609,8 @@ document.addEventListener('keydown', (e) => {
   if (e.altKey && e.ctrlKey && e.key.toLowerCase() === 'e') {
     const menu = document.getElementById('uni-emoji-menu');
     if (menu) {
-      menu.style.display = (menu.style.display === 'none' ? 'flex' : 'none');
+      const isHidden = window.getComputedStyle(menu).display === 'none';
+      menu.style.display = isHidden ? 'flex' : 'none';
     }
   }
 });
@@ -552,16 +619,19 @@ document.addEventListener('keydown', (e) => {
 const emojiTab = container.querySelector('.emojistab');
 const stickerTab = container.querySelector('.stickerstab');
 const gifTab = container.querySelector('.giftab');
+const settingsTab = container.querySelector('.settingstab');
 const emojiGrid = container.querySelector('.uni-emoji-grid');
 const paginationDiv = container.querySelector('.uni-pagination');
 const pageJumpDiv = container.querySelector('#uni-page-jump-container');
 const searchBarDiv = container.querySelector('.srchxbtn');
 const stickerComingSoon = container.querySelector('#uni-sticker-comingsoon');
 const gifComingSoon = container.querySelector('#uni-gif-comingsoon');
+const settingsComingSoon = container.querySelector('#uni-settings-comingsoon');
 
 
 emojiTab.addEventListener('click', () => {
   emojiTab.classList.add('active');
+  settingsTab.classList.remove('active');
   stickerTab.classList.remove('active');
   gifTab.classList.remove('active');
   emojiGrid.style.display = '';
@@ -570,33 +640,54 @@ emojiTab.addEventListener('click', () => {
   searchBarDiv.style.display = '';
   stickerComingSoon.style.display = 'none';
   gifComingSoon.style.display = 'none';
+  settingsComingSoon.style.display = 'none';
   searchInput.placeholder = "Search emojis... (Right-click emoji to favorite)";
   showPage(currentPage);
 });
 
 stickerTab.addEventListener('click', () => {
   stickerTab.classList.add('active');
+  settingsTab.classList.remove('active');
   emojiTab.classList.remove('active');
   gifTab.classList.remove('active');
   emojiGrid.style.display = 'none';
   paginationDiv.style.display = 'none';
   pageJumpDiv.style.display = 'none';
-  searchBarDiv.style.display = '';
+  searchBarDiv.style.display = 'none'; //"none" to hide the search bar
   stickerComingSoon.style.display = '';
   gifComingSoon.style.display = 'none';
+  settingsComingSoon.style.display = 'none';
   searchInput.placeholder = "Search stickers... (Coming soon!)";
 });
 
 gifTab.addEventListener('click', () => {
   gifTab.classList.add('active');
+  settingsTab.classList.remove('active');
   emojiTab.classList.remove('active');
   stickerTab.classList.remove('active');
   emojiGrid.style.display = 'none';
   paginationDiv.style.display = 'none';
   pageJumpDiv.style.display = 'none';
-  searchBarDiv.style.display = '';
+  searchBarDiv.style.display = 'none'; //"none" to hide the search bar
   stickerComingSoon.style.display = 'none';
-  gifComingSoon.style.display = '';
+  gifComingSoon.style.display = 'none';
+  settingsComingSoon.style.display = '';
+  searchInput.placeholder = "Search gifs... (Coming soon!)";
+});
+
+
+settingsTab.addEventListener('click', () => {
+  settingsTab.classList.add('active');
+  emojiTab.classList.remove('active');
+  stickerTab.classList.remove('active');
+  gifTab.classList.remove('active');
+  emojiGrid.style.display = 'none';
+  paginationDiv.style.display = 'none';
+  pageJumpDiv.style.display = 'none';
+  searchBarDiv.style.display = 'none'; //"none" to hide the search bar
+  stickerComingSoon.style.display = 'none';
+  gifComingSoon.style.display = 'none';
+  settingsComingSoon.style.display = '';
   searchInput.placeholder = "Search gifs... (Coming soon!)";
 });
 
