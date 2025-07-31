@@ -1,8 +1,10 @@
 // ==UserScript==
 // @name         Ultimate Emojis
-// @version      0.2
+// @version      0.3
 // @description  Discord-style emoji/sticker/gif picker with favorites, pagination, search.
 // @author       ZukoXZoku
+// @icon         https://ptpimg.me/91xfz9.gif
+// @grant        GM_xmlhttpRequest
 // @match        https://aither.cc/*
 // @match        https://blutopia.cc/*
 // @match        https://fearnopeer.com/*
@@ -10,12 +12,10 @@
 // @match        https://reelflix.xyz/*
 // @match        https://upload.cx/*
 // @match        https://oldtoons.world/*
-// @icon         https://ptpimg.me/91xfz9.gif
-// @grant        GM_xmlhttpRequest
 // @grant        GM_addStyle
 // @grant        GM_setValue
 // @grant        GM_getValue
-// @connect      //url
+// @connect      raw.githubusercontent.com
 // ==/UserScript==
 
 
@@ -34,6 +34,12 @@
 -----------Added-----------
 
 1. Added Settings button
+2. Added Multiple emojis json
+
+
+-----------Stats-----------
+
+Emojis: 113.404
 
 */
 
@@ -41,7 +47,37 @@
 (function () {
   'use strict';
 
-  const JSON_URL = '#'; // Do not touch this
+  const JSON_URLS = [
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj1.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj2.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj3.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj4.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj5.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj6.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj7.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj8.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj9.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj10.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj11.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj12.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj13.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj14.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj15.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj16.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj17.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj18.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj19.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj20.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj21.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj22.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj23.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj24.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj25.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj26.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj27.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj28.json',
+  'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj29.json',
+  ]; // Do not touch this
   const EMOJIS_PER_PAGE = 306;
 
   let allEmojis = [];
@@ -423,28 +459,45 @@ margin:0 0 0 30%;
   const pageJumpButton = document.getElementById('uni-page-jump-button');
 
   // Fetch emojis JSON
-  GM_xmlhttpRequest({
-    method: "GET",
-    url: JSON_URL,
-    onload: function (res) {
-      try {
-        const raw = JSON.parse(res.responseText);
-        allEmojis = Object.entries(raw).map(([key, value]) => ({
-          name: key,
-          url: value.url,
-          tags: value.tags || [],
-        }));
-        filteredEmojis = allEmojis;
-        applyFavoriteSort();
-        showPage(1);
-      } catch (err) {
-        console.error("❌ JSON parsing error:", err);
-            container.innerHTML = `<b style="text-align:center;"><i> ❌ Failed to load the script</i></b>`;
+function fetchJson(url) {
+  return new Promise((resolve, reject) => {
+    GM_xmlhttpRequest({
+      method: "GET",
+      url: url,
+      onload: function (res) {
+        try {
+          const raw = JSON.parse(res.responseText);
+          resolve(raw);
+        } catch (err) {
+          reject(err);
+        }
+      },
+      onerror: function () {
+        reject(new Error("Request failed"));
       }
-    },
-    onerror: function () {
-      container.innerHTML = `<b style="text-align:center;"><i> ❌ Failed to load the script</i></b>`;
-    }
+    });
+  });
+}
+
+// Fetch all JSONs and merge
+Promise.all(JSON_URLS.map(fetchJson))
+  .then(results => {
+    // results is an array of JSON objects
+    // Merge all objects into one
+    const merged = Object.assign({}, ...results);
+
+    allEmojis = Object.entries(merged).map(([key, value]) => ({
+      name: key,
+      url: value.url,
+      tags: value.tags || [],
+    }));
+    filteredEmojis = allEmojis;
+    applyFavoriteSort();
+    showPage(1);
+  })
+  .catch(err => {
+    console.error("❌ JSON loading/parsing error:", err);
+    container.innerHTML = `<b style="text-align:center;"><i> ❌ Failed to load the script</i></b>`;
   });
 
   // Save favorites to storage
