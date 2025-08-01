@@ -33,6 +33,8 @@
 
 1. Mac hotkey support
 2. Stickers
+3. Grub the menu
+4. New Button to open the menu
 
 -----------Stats-----------
 
@@ -113,6 +115,7 @@ Stickers: 5.670
     user-select: none;
     flex-direction: column;
     z-index: 9999999;
+    inset: 113.75px auto auto 1281px;
 }
 
 /* Search input */
@@ -306,7 +309,7 @@ color: #72767d;
 /* Top Buttons */
 .topsearchbarbuttons {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     margin: 8px 0 8px 8px;
 }
 .emojistab, .stickerstab {
@@ -433,7 +436,6 @@ color: #72767d;
     </div>
     <div class="srchxbtn">
       <input type="text" id="uni-emoji-search" placeholder="Search emojis... (Right-click emoji to favorite)">
-      <i class="fa-solid fa-magnifying-glass"></i>
     </div>
     <div class="uni-emoji-grid" id="uni-emoji-grid"></div>
     <div class="uni-pagination" id="uni-emoji-pagination"></div>
@@ -655,22 +657,184 @@ pageJumpInput.addEventListener('keydown', function(e) {
 });
 
 
+// --- Create the emoji menu modal ---
+function createModal(targetInput, buttonRect) {
+    const existingMenu = document.getElementById("uni-emoji-menu");
+    if (existingMenu) existingMenu.remove();
+
+    // Create the menu container
+    const modal = document.createElement("div");
+    modal.className = "emote-menu";
+    modal.id = "uni-emoji-menu";
+    modal.style.display = 'flex'; // Initial visible state
+
+    // Create the emote content
+    const emoteContent = document.createElement("div");
+    emoteContent.className = "emote-content";
+
+    modal.appendChild(emoteContent);
+    document.body.appendChild(modal);
+
+    // --- Position the menu near the button ---
+    const menuHeight = 300;
+    const menuWidth = 300;
+    let top = buttonRect.top - menuHeight - 5;
+    let left = buttonRect.right - menuWidth;
+    if (top < 0) top = buttonRect.bottom + 5;
+    if (left < 0) left = 0;
+    if (left + menuWidth > window.innerWidth) left = window.innerWidth - menuWidth;
+    modal.style.top = `${top}px`;
+    modal.style.left = `${left}px`;
+
+    // --- Filter function ---
+    function filterEmotes(event) {
+        const searchTerm = event.target.value.toLowerCase();
+        const emoteContainers = emoteContent.querySelectorAll(".emote-container");
+        emoteContainers.forEach((container) => {
+            const tags = container.dataset.tags.split(" ");
+            const matches = tags.some((tag) => tag.startsWith(searchTerm));
+            container.style.display = matches ? "block" : "none";
+        });
+    }
+}
+
+// --- Add the emoji button to all textareas ---
+
+const emojis = [
+    '😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇',
+    '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚',
+    '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🥸',
+    '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️',
+    '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡',
+    '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓',
+    '🫣', '🫡', '🤗', '🤔', '🫢', '🤭', '🤫', '🤥', '😶', '😐',
+    '😑', '😬', '🫨', '🫠', '🙄', '😯', '😦', '😧', '😮', '😲',
+    '🥱', '😴', '🤤', '😪', '😵', '😵‍💫', '🫥', '🤐', '🥴', '🤢',
+    '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹',
+    '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖',
+    '🐵', '🐒', '🐶', '🐕', '🐩', '🐱', '🐈', '🦁', '🐯', '🐅',
+    '🐆', '🐴', '🐎', '🦄', '🐮', '🐷', '🐖', '🐗', '🐽', '🐏',
+    '🐑', '🐐', '🐪', '🐫', '🦙', '🐘', '🐭', '🐁', '🐀', '🐹',
+    '🐰', '🐇', '🐿️', '🦫', '🦔', '🦇', '🐻', '🐨', '🐼', '🦥',
+    '🦦', '🦨', '🦘', '🦡', '🐸', '🐊', '🐢', '🦎', '🐍', '🐲',
+    '🐉', '🐳', '🐋', '🐬', '🦭', '🦈', '🐟', '🐠', '🐡', '🐙',
+    '🦑', '🦐', '🦞', '🦀', '🐌', '🦋', '🐛', '🐜', '🐝', '🪲',
+    '🐞', '🦗', '🪳', '🕷️'
+];
+
+const textInputs = document.querySelectorAll('textarea:not([type="search"]):not([role="searchbox"])');
+
+textInputs.forEach(input => {
+    if (input.nextElementSibling && input.nextElementSibling.classList.contains('emoji-button')) {
+        return;
+    }
+
+// Add CSS to document
+const emojiButtonCSS = `
+/* Add positioning context to the parent container */
+.panel__actions {
+  position: relative;
+}
+
+/* Keep your existing emoji button styles */
+.emoji-button {
+  cursor: pointer;
+  font-size: 24px;
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  z-index: 1;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+  user-select: none;
+  filter: grayscale(100%);
+}
+
+.emoji-button:hover {
+  transform: scale(1.1);
+  filter: grayscale(0%);
+}
+  `;
+    document.head.insertAdjacentHTML('beforeend', `<style>${emojiButtonCSS}</style>`);
+
+    // Create emoji button element
+    const emojiButton = document.createElement("span");
+    emojiButton.classList.add("emoji-button");
+    emojiButton.innerHTML = "😂";
+
+    emojiButton.addEventListener("mouseenter", () => {
+        const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+        emojiButton.innerHTML = randomEmoji;
+        emojiButton.style.filter = 'grayscale(0%)';
+        emojiButton.style.transform = 'scale(1.1)';
+    });
+
+    emojiButton.addEventListener("mouseleave", () => {
+        const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+        emojiButton.style.filter = 'grayscale(80%)';
+        emojiButton.style.transform = 'scale(1)';
+    });
+
+    emojiButton.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const menu = document.getElementById("uni-emoji-menu");
+        if (menu) {
+            // Toggle visibility
+            const isHidden = window.getComputedStyle(menu).display === 'none';
+            menu.style.display = isHidden ? 'flex' : 'none';
+        } else {
+            // Create new menu
+            createModal(input, emojiButton.getBoundingClientRect());
+        }
+    });
+
+    function Menu(e) {
+        if (e && e.target && e.target !== document && e.target !== window) return;
+        const menu = document.getElementById("uni-emoji-menu");
+        if (menu) {
+            menu.style.display = 'none';
+        }
+    }
+
+    // Set parent to relative for absolute positioning
+    const textareaParent = input.parentElement;
+    if (textareaParent) {
+        if (getComputedStyle(textareaParent).position === 'static') {
+            textareaParent.style.position = 'relative';
+        }
+        textareaParent.appendChild(emojiButton);
+    }
+});
+
+/*
+// --- Close menu when clicking outside ---  Make an X Button here
+document.addEventListener('click', (e) => {
+    const menu = document.getElementById("uni-emoji-menu");
+    const emojiButtons = document.querySelectorAll('.emoji-button');
+    if (menu && !menu.contains(e.target) && !Array.from(emojiButtons).some(btn => btn.contains(e.target))) {
+        menu.style.display = 'none';
+    }
+});
+*/
 
 // Hotkey: Ctrl + Alt + E (Windows/Linux) to toggle emoji menu
 // Hotkey: Cmd + Option + E (Mac) to toggle emoji menu
 document.addEventListener('keydown', (e) => {
-  const isWinLinCombo = e.ctrlKey && e.altKey && !e.metaKey && e.key.toLowerCase() === 'e';
-  const isMacCombo = e.metaKey && e.altKey && !e.ctrlKey && e.key.toLowerCase() === 'e';
+    const isWinLinCombo = e.ctrlKey && e.altKey && !e.metaKey && e.key.toLowerCase() === 'e';
+    const isMacCombo = e.metaKey && e.altKey && !e.ctrlKey && e.key.toLowerCase() === 'e';
 
-  if (isWinLinCombo || isMacCombo) {
-    const menu = document.getElementById('uni-emoji-menu');
-    if (menu) {
-      const isHidden = window.getComputedStyle(menu).display === 'none';
-      menu.style.display = isHidden ? 'flex' : 'none';
+    if (isWinLinCombo || isMacCombo) {
+        const menu = document.getElementById('uni-emoji-menu');
+        if (menu) {
+            const isHidden = window.getComputedStyle(menu).display === 'none';
+            menu.style.display = isHidden ? 'flex' : 'none';
+        }
+        e.preventDefault();
     }
-    // Prevent default to avoid conflicts (optional)
-    e.preventDefault();
-  }
 });
 
 
@@ -749,4 +913,52 @@ settingsTab.addEventListener('click', () => {
   searchInput.placeholder = "Search gifs... (Coming soon!)";
 });
 
+
+(function enableDraggableMenuFromTop() {
+  let isDragging = false;
+  let offsetX = 0, offsetY = 0;
+
+  // Wait for DOM
+  function init() {
+    const frame = document.getElementById("uni-emoji-menu");
+    if (!frame) return;
+    const header = frame.querySelector(".topsearchbarbuttons");
+    if (!header) return;
+
+
+    header.style.cursor = "move"; // Visual cue
+
+    header.addEventListener("mousedown", function (e) {
+      isDragging = true;
+      const rect = frame.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+      e.preventDefault();
+    });
+
+    function onMouseMove(e) {
+      if (!isDragging) return;
+      frame.style.left = (e.clientX - offsetX) + "px";
+      frame.style.top = (e.clientY - offsetY) + "px";
+      frame.style.right = "auto";
+      frame.style.bottom = "auto";
+    }
+
+    function onMouseUp() {
+      isDragging = false;
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    }
+  }
+
+  // Wait for the menu to exist in DOM
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    setTimeout(init, 0);
+  }
+})();
 })();
