@@ -31,15 +31,21 @@
 
 -----------Added-----------
 
-1. Mac hotkey support
-2. Stickers
-3. Grub the menu
-4. New Button to open the menu
+1. Full macOS hotkey support | Hotkey: Cmd + Option + E
+2. Added emoji button for easy menu access
+3. Menu can now be move/drag
+4. Bug fixes and stability improvements
 
 -----------Stats-----------
 
 Emojis: 113.404
-Stickers: 5.670
+Stickers: 5.670 - Coming soon
+
+-----------To-Do-----------
+
+1. X Button to close the menu
+2. Add the stickers json
+3. Update the settings button
 
 ------------End-------------
 */
@@ -657,7 +663,6 @@ pageJumpInput.addEventListener('keydown', function(e) {
 });
 
 
-// --- Create the emoji menu modal ---
 function createModal(targetInput, buttonRect) {
     const existingMenu = document.getElementById("uni-emoji-menu");
     if (existingMenu) existingMenu.remove();
@@ -674,17 +679,6 @@ function createModal(targetInput, buttonRect) {
 
     modal.appendChild(emoteContent);
     document.body.appendChild(modal);
-
-    // --- Position the menu near the button ---
-    const menuHeight = 300;
-    const menuWidth = 300;
-    let top = buttonRect.top - menuHeight - 5;
-    let left = buttonRect.right - menuWidth;
-    if (top < 0) top = buttonRect.bottom + 5;
-    if (left < 0) left = 0;
-    if (left + menuWidth > window.innerWidth) left = window.innerWidth - menuWidth;
-    modal.style.top = `${top}px`;
-    modal.style.left = `${left}px`;
 
     // --- Filter function ---
     function filterEmotes(event) {
@@ -731,26 +725,16 @@ textInputs.forEach(input => {
 
 // Add CSS to document
 const emojiButtonCSS = `
-/* Add positioning context to the parent container */
-.panel__actions {
-  position: relative;
-}
-
-/* Keep your existing emoji button styles */
 .emoji-button {
   cursor: pointer;
-  font-size: 24px;
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  z-index: 1;
-  width: 32px;
-  height: 32px;
+  font-size: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.2s;
   user-select: none;
+  float: inline-end;
+  margin: 10px 10px 0 0;
   filter: grayscale(100%);
 }
 
@@ -810,8 +794,7 @@ const emojiButtonCSS = `
     }
 });
 
-/*
-// --- Close menu when clicking outside ---  Make an X Button here
+// --- Close menu when clicking outside ---
 document.addEventListener('click', (e) => {
     const menu = document.getElementById("uni-emoji-menu");
     const emojiButtons = document.querySelectorAll('.emoji-button');
@@ -819,7 +802,6 @@ document.addEventListener('click', (e) => {
         menu.style.display = 'none';
     }
 });
-*/
 
 // Hotkey: Ctrl + Alt + E (Windows/Linux) to toggle emoji menu
 // Hotkey: Cmd + Option + E (Mac) to toggle emoji menu
