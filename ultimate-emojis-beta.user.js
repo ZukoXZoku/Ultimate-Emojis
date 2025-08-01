@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ultimate Emojis BETA
-// @version      0.4
+// @version      0.5
 // @description  Discord-style emoji/sticker/gif picker with favorites, pagination, search.
 // @author       ZukoXZoku
 // @icon         https://ptpimg.me/91xfz9.gif
@@ -27,7 +27,7 @@
 
 -----------Removed-----------
 
-
+1. Close menu when clicking outside
 
 -----------Added-----------
 
@@ -791,15 +791,6 @@ const emojiButtonCSS = `
             textareaParent.style.position = 'relative';
         }
         textareaParent.appendChild(emojiButton);
-    }
-});
-
-// --- Close menu when clicking outside ---
-document.addEventListener('click', (e) => {
-    const menu = document.getElementById("uni-emoji-menu");
-    const emojiButtons = document.querySelectorAll('.emoji-button');
-    if (menu && !menu.contains(e.target) && !Array.from(emojiButtons).some(btn => btn.contains(e.target))) {
-        menu.style.display = 'none';
     }
 });
 
