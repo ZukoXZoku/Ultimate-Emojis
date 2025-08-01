@@ -27,14 +27,12 @@
 
 -----------Removed-----------
 
-1. Close menu when clicking outside
+
 
 -----------Added-----------
 
-1. Full macOS hotkey support | Hotkey: Cmd + Option + E
-2. Added emoji button for easy menu access
-3. Menu can now be move/drag
-4. Bug fixes and stability improvements
+1. Added X Button to close the menu
+
 
 -----------Stats-----------
 
@@ -43,7 +41,7 @@ Stickers: 5.670 - Coming soon
 
 -----------To-Do-----------
 
-1. X Button to close the menu
+
 2. Add the stickers json
 3. Update the settings button
 
@@ -124,6 +122,31 @@ Stickers: 5.670 - Coming soon
     inset: 113.75px auto auto 1281px;
 }
 
+
+#uni-emoji-menu .topbar{
+    width: 100px;
+    height: 100px;
+    margin: 0 20px 0 0;
+}
+
+.topbar .exitbtn{
+    color: #ff0000;
+    cursor: pointer;
+    right: 18px;
+    position: absolute;
+    font-size: 25px;
+}
+
+.topbar .dragbtn{
+    color: #ff0000;
+    cursor: pointer;
+    right: 18px;
+    position: absolute;
+    font-size: 25px;
+}
+
+
+
 /* Search input */
 #uni-emoji-search {
     z-index: 998;
@@ -145,10 +168,11 @@ Stickers: 5.670 - Coming soon
     transition: all 0.2s ease;
     margin: 5px 0 15px 0;
 }
+
 #uni-emoji-search::placeholder {
-color: #72767d;
+    color: #72767d;
 }
-    #uni-emoji-search:focus {
+#uni-emoji-search:focus {
     outline: none;
     background-color: #292b2f;
     box-shadow: 0 0 6px #7289da;
@@ -434,6 +458,10 @@ color: #72767d;
 
   // Insert base HTML with unique IDs and classes
     container.innerHTML = `
+    <div class="topbar">
+  <!-- <div class="dragbtn"><i class="fa-solid fa-arrows-up-down-left-right"></i> -->
+   <div class="exitbtn"><i class="fa-solid fa-xmark"></i></div>
+   </div>
     <div class="topsearchbarbuttons">
       <div class="giftab">GIFs</div>
       <div class="stickerstab">Stickers</div>
@@ -792,6 +820,16 @@ const emojiButtonCSS = `
         }
         textareaParent.appendChild(emojiButton);
     }
+});
+
+
+document.querySelectorAll('.exitbtn').forEach(button => {
+    button.addEventListener('click', function() {
+        const menu = document.getElementById('uni-emoji-menu');
+        if (menu) {
+            menu.style.display = 'none';
+        }
+    });
 });
 
 // Hotkey: Ctrl + Alt + E (Windows/Linux) to toggle emoji menu
