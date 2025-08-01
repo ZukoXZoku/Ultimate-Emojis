@@ -1,10 +1,9 @@
 // ==UserScript==
 // @name         Ultimate Emojis
-// @version      0.3
+// @version      0.4
 // @description  Discord-style emoji/sticker/gif picker with favorites, pagination, search.
 // @author       ZukoXZoku
 // @icon         https://ptpimg.me/91xfz9.gif
-// @grant        GM_xmlhttpRequest
 // @match        https://aither.cc/*
 // @match        https://blutopia.cc/*
 // @match        https://fearnopeer.com/*
@@ -12,6 +11,7 @@
 // @match        https://reelflix.xyz/*
 // @match        https://upload.cx/*
 // @match        https://oldtoons.world/*
+// @grant        GM_xmlhttpRequest
 // @grant        GM_addStyle
 // @grant        GM_setValue
 // @grant        GM_getValue
@@ -23,24 +23,31 @@
 /*
 -----------Bugs-----------
 
-1. Press 2 ctrl & alt & e times to open the menu bug fixed.
 
 
 -----------Removed-----------
 
-1. search bar on stickers tab & search bar on gifs tab
 
 
 -----------Added-----------
 
-1. Added Settings button
-2. Added Multiple emojis json
-
+1. Full macOS hotkey support | Hotkey: Cmd + Option + E
+2. Added emoji button for easy menu access
+3. Menu can now be move/drag
+4. Bug fixes and stability improvements
 
 -----------Stats-----------
 
 Emojis: 113.404
+Stickers: 5.670 - Coming soon
 
+-----------To-Do-----------
+
+1. X Button to close the menu
+2. Add the stickers json
+3. Update the settings button
+
+------------End-------------
 */
 
 
@@ -97,27 +104,28 @@ Emojis: 113.404
 
   // Inject Discord-style dark theme CSS with updated unique selectors
   GM_addStyle(`
-    /* Container */
-    #uni-emoji-menu {
-      position: fixed;
-      bottom: 15px;
-      right: 15px;
-      width: 440px;
-      max-height: 75vh;
-      background-color: #2f3136;
-      color: #dcddde;
-      border-radius: 8px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-      padding: 12px;
-      display: none;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      user-select: none;
-      flex-direction: column;
-      z-index: 9999999;
-    }
+/* Container */
+#uni-emoji-menu {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    width: 440px;
+    max-height: 75vh;
+    background-color: #2f3136;
+    color: #dcddde;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    padding: 12px;
+    display: none;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    user-select: none;
+    flex-direction: column;
+    z-index: 9999999;
+    inset: 113.75px auto auto 1281px;
+}
 
-    /* Search input */
-    #uni-emoji-search {
+/* Search input */
+#uni-emoji-search {
     z-index: 998;
     position: sticky;
     top: 0;
@@ -136,144 +144,144 @@ Emojis: 113.404
     box-shadow: 0 2px 5px rgba(0,0,0,0.25);
     transition: all 0.2s ease;
     margin: 5px 0 15px 0;
-    }
-    #uni-emoji-search::placeholder {
-      color: #72767d;
-    }
+}
+#uni-emoji-search::placeholder {
+color: #72767d;
+}
     #uni-emoji-search:focus {
-      outline: none;
-      background-color: #292b2f;
-      box-shadow: 0 0 6px #7289da;
-      color: #fff;
-    }
+    outline: none;
+    background-color: #292b2f;
+    box-shadow: 0 0 6px #7289da;
+    color: #fff;
+}
 
-    /* Emoji grid */
-    .uni-emoji-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, 36px);
-      gap: 8px;
-      justify-content: start;
-      overflow-y: auto;
-      flex-grow: 1;
-      padding: 15px 0 15px 12px;
-    }
+/* Emoji grid */
+.uni-emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 36px);
+    gap: 8px;
+    justify-content: start;
+    overflow-y: auto;
+    flex-grow: 1;
+    padding: 15px 0 15px 12px;
+}
 
-    .uni-emoji-grid img {
-      width: 36px;
-      height: 36px;
-      border-radius: 6px;
-      cursor: pointer;
-      object-fit: contain;
-      filter: drop-shadow(0 0 1px #000);
-      position: relative;
-      background-color: #202225;
-    }
-    .uni-emoji-grid img:hover {
-      transform: scale(1.3);
-      box-shadow: 0 0 8px #7289da;
-      z-index: 10;
-    }
+.uni-emoji-grid img {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    cursor: pointer;
+    object-fit: contain;
+    filter: drop-shadow(0 0 1px #000);
+    position: relative;
+    background-color: #202225;
+}
+.uni-emoji-grid img:hover {
+    transform: scale(1.3);
+    box-shadow: 0 0 8px #7289da;
+    z-index: 10;
+}
 
-    /* Favorite star overlay */
-    .uni-emoji-favorite {
-      position: relative;
-    }
-    .uni-emoji-favorite::after {
-      content: "★";
-      position: absolute;
-      top: 2px;
-      right: 2px;
-      font-size: 14px;
-      color: #f1c40f;
-      text-shadow:
-        0 0 2px #000,
-        0 0 4px #000;
-      pointer-events: none;
-      user-select: none;
-    }
+/* Favorite star overlay */
+.uni-emoji-favorite {
+    position: relative;
+}
+.uni-emoji-favorite::after {
+    content: "★";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 14px;
+    color: #f1c40f;
+    text-shadow:
+    0 0 2px #000,
+    0 0 4px #000;
+    pointer-events: none;
+    user-select: none;
+}
 
-    /* Pagination container */
-    .uni-pagination {
-      display: flex;
-      justify-content: center;
-      gap: 6px;
-      margin-top: 12px;
-      flex-wrap: wrap;
-      user-select: none;
-    }
+/* Pagination container */
+.uni-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+    user-select: none;
+}
 
-    .uni-pagination button {
-      background-color: #202225;
-      border: none;
-      border-radius: 3px;
-      color: #b9bbbe;
-      padding: 6px 12px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background-color 0.2s ease, color 0.2s ease;
-      user-select: none;
-      box-shadow: 0 0 5px transparent;
-      flex-shrink: 0;
-      min-width: 32px;
-      font-weight: 600;
-    }
-    .uni-pagination button:hover:not(.active) {
-      background-color: #36393f;
-      color: #fff;
-      box-shadow: 0 0 5px #7289da;
-    }
-    .uni-pagination button.active {
-      background-color: #5865f2;
-      color: white;
-      cursor: default;
-      box-shadow: 0 0 10px #5865f2;
-    }
+.uni-pagination button {
+    background-color: #202225;
+    border: none;
+    border-radius: 3px;
+    color: #b9bbbe;
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    user-select: none;
+    box-shadow: 0 0 5px transparent;
+    flex-shrink: 0;
+    min-width: 32px;
+    font-weight: 600;
+}
+.uni-pagination button:hover:not(.active) {
+    background-color: #36393f;
+    color: #fff;
+    box-shadow: 0 0 5px #7289da;
+}
+.uni-pagination button.active {
+    background-color: #5865f2;
+    color: white;
+    cursor: default;
+    box-shadow: 0 0 10px #5865f2;
+}
 
-    /* Page jump container */
-    #uni-page-jump-container {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 12px;
-      user-select: none;
-    }
-    #uni-page-jump-container input[type="number"] {
-      width: 64px;
-      padding: 6px 8px;
-      font-size: 15px;
-      border: none;
-      border-radius: 20px;
-      background-color: #202225;
-      color: #dcddde;
-      box-shadow: inset 0 0 4px #000;
-      text-align: center;
-      user-select: text;
-      -moz-appearance: textfield;
-    }
-    /* Remove spin buttons for number input */
-    #uni-page-jump-container input[type=number]::-webkit-inner-spin-button,
-    #uni-page-jump-container input[type=number]::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-    #uni-page-jump-container button {
-      background-color: #5865f2;
-      border: none;
-      border-radius: 5px;
-      padding: 6px 14px;
-      color: white;
-      font-weight: 600;
-      font-size: 15px;
-      cursor: pointer;
-      box-shadow: 0 0 8px #5865f2;
-      transition: background-color 0.2s ease;
-      user-select: none;
-    }
-    #uni-page-jump-container button:hover {
-      background-color: #4752c4;
-    }
+/* Page jump container */
+#uni-page-jump-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+    user-select: none;
+}
+#uni-page-jump-container input[type="number"] {
+    width: 64px;
+    padding: 6px 8px;
+    font-size: 15px;
+    border: none;
+    border-radius: 20px;
+    background-color: #202225;
+    color: #dcddde;
+    box-shadow: inset 0 0 4px #000;
+    text-align: center;
+    user-select: text;
+    -moz-appearance: textfield;
+}
+/* Remove spin buttons for number input */
+#uni-page-jump-container input[type=number]::-webkit-inner-spin-button,
+#uni-page-jump-container input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+#uni-page-jump-container button {
+    background-color: #5865f2;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 14px;
+    color: white;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 0 8px #5865f2;
+    transition: background-color 0.2s ease;
+    user-select: none;
+}
+#uni-page-jump-container button:hover {
+    background-color: #4752c4;
+}
 
-    .testbtn1 {
+.testbtn1 {
     font-family: ubuntu;
     background-color: #2f3136;
     color: #fefefe;
@@ -284,142 +292,142 @@ Emojis: 113.404
     transition: background-color .1s ease-in-out,color .1s ease-in-out
     box-shadow: 0 0 8px #101010;
     margin: 0 10px 10px 10px
-    }
+}
 
-    .testbtn1:hover {
+.testbtn1:hover {
     background-color: #404247;
     cursor: pointer;
-    }
+}
 
 .srchxbtn .fa-solid.fa-magnifying-glass {
-  position: relative;
-  left: 375px;
-  top: -40px;
-  color: blue;
-  font-size: 20px;
+    position: relative;
+    left: 375px;
+    top: -40px;
+    color: blue;
+    font-size: 20px;
 }
 
 /* Search Bar Container */
 .srchxbtn {
-  display: flex;
+    display: flex;
 }
 
 /* Top Buttons */
 .topsearchbarbuttons {
-  display: flex;
-  gap: 8px;
-  margin: 8px 0 8px 8px;
+    display: flex;
+    gap: 10px;
+    margin: 8px 0 8px 8px;
 }
 .emojistab, .stickerstab {
-  font-family: "gg sans", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
-  font-weight: 600;
-  font-size: 14px;
-  color: #fff;
-  background: none;
-  border: none;
-  border-radius: 8px;
-  padding: 4px 12px;
-  cursor: pointer;
-  opacity: 0.8;
-  transition: background 0.18s cubic-bezier(.4,0,.2,1),
-              color 0.18s cubic-bezier(.4,0,.2,1),
-              opacity 0.18s cubic-bezier(.4,0,.2,1);
+    font-family: "gg sans", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: #fff;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    padding: 4px 12px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: background 0.18s cubic-bezier(.4,0,.2,1),
+          color 0.18s cubic-bezier(.4,0,.2,1),
+          opacity 0.18s cubic-bezier(.4,0,.2,1);
 }
 
 .emojistab:hover, .stickerstab:hover {
-  background-color: #46484c;
-  color: #fff;
-  opacity: 1;
+    background-color: #46484c;
+    color: #fff;
+    opacity: 1;
 }
 
 .emojistab.active,
 .stickerstab.active {
-  background: #46484c;
-  color: #fff;
-  opacity: 1;
+    background: #46484c;
+    color: #fff;
+    opacity: 1;
 }
 
 .emojistab.active:hover,
 .stickerstab.active:hover {
-  background: #404246;
-  color: #fff;
+    background: #404246;
+    color: #fff;
 }
 
 
 .emojistab, .giftab {
-  font-family: "gg sans", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
-  font-weight: 600;
-  font-size: 14px;
-  color: #fff;
-  background: none;
-  border: none;
-  border-radius: 8px;
-  padding: 4px 12px;
-  cursor: pointer;
-  opacity: 0.8;
-  transition: background 0.18s cubic-bezier(.4,0,.2,1),
-              color 0.18s cubic-bezier(.4,0,.2,1),
-              opacity 0.18s cubic-bezier(.4,0,.2,1);
+    font-family: "gg sans", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: #fff;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    padding: 4px 12px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: background 0.18s cubic-bezier(.4,0,.2,1),
+          color 0.18s cubic-bezier(.4,0,.2,1),
+          opacity 0.18s cubic-bezier(.4,0,.2,1);
 }
 
 .emojistab:hover, .giftab:hover {
-  background-color: #46484c;
-  color: #fff;
-  opacity: 1;
+    background-color: #46484c;
+    color: #fff;
+    opacity: 1;
 }
 
 .emojistab.active,
 .giftab.active {
-  background: #46484c;
-  color: #fff;
-  opacity: 1;
+    background: #46484c;
+    color: #fff;
+    opacity: 1;
 }
 
 .emojistab.active:hover,
 .giftab.active:hover {
-  background: #404246;
-  color: #fff;
+    background: #404246;
+    color: #fff;
 }
 
 
 
 .emojistab, .settingstab {
-  font-family: "gg sans", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
-  font-weight: 600;
-  font-size: 14px;
-  color: #fff;
-  background: none;
-  border: none;
-  border-radius: 8px;
-  padding: 4px 12px;
-  cursor: pointer;
-  opacity: 0.8;
-  transition: background 0.18s cubic-bezier(.4,0,.2,1),
-              color 0.18s cubic-bezier(.4,0,.2,1),
-              opacity 0.18s cubic-bezier(.4,0,.2,1);
+    font-family: "gg sans", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: #fff;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    padding: 4px 12px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: background 0.18s cubic-bezier(.4,0,.2,1),
+          color 0.18s cubic-bezier(.4,0,.2,1),
+          opacity 0.18s cubic-bezier(.4,0,.2,1);
 }
 
 .settingstab{
-margin:0 0 0 30%;
+    margin:0 0 0 30%;
 }
 
 .emojistab:hover, .settingstab:hover {
-  background-color: #46484c;
-  color: #fff;
-  opacity: 1;
+    background-color: #46484c;
+    color: #fff;
+    opacity: 1;
 }
 
 .settingstab.active,
 .giftab.active {
-  background: #46484c;
-  color: #fff;
-  opacity: 1;
+    background: #46484c;
+    color: #fff;
+    opacity: 1;
 }
 
 .settingstab.active:hover,
 .giftab.active:hover {
-  background: #404246;
-  color: #fff;
+    background: #404246;
+    color: #fff;
 }
 
 `);
@@ -434,7 +442,6 @@ margin:0 0 0 30%;
     </div>
     <div class="srchxbtn">
       <input type="text" id="uni-emoji-search" placeholder="Search emojis... (Right-click emoji to favorite)">
-      <i class="fa-solid fa-magnifying-glass"></i>
     </div>
     <div class="uni-emoji-grid" id="uni-emoji-grid"></div>
     <div class="uni-pagination" id="uni-emoji-pagination"></div>
@@ -579,7 +586,7 @@ img.addEventListener('click', () => {
   }
 
 
-  function renderPagination() {
+ function renderPagination() {
     pagination.innerHTML = '';
     const totalPages = Math.max(1, Math.ceil(filteredEmojis.length / EMOJIS_PER_PAGE));
 
@@ -656,16 +663,160 @@ pageJumpInput.addEventListener('keydown', function(e) {
 });
 
 
+function createModal(targetInput, buttonRect) {
+    const existingMenu = document.getElementById("uni-emoji-menu");
+    if (existingMenu) existingMenu.remove();
 
-// ⌨️ Hotkey: Alt + E to toggle emoji menu
-document.addEventListener('keydown', (e) => {
-  if (e.altKey && e.ctrlKey && e.key.toLowerCase() === 'e') {
-    const menu = document.getElementById('uni-emoji-menu');
-    if (menu) {
-      const isHidden = window.getComputedStyle(menu).display === 'none';
-      menu.style.display = isHidden ? 'flex' : 'none';
+    // Create the menu container
+    const modal = document.createElement("div");
+    modal.className = "emote-menu";
+    modal.id = "uni-emoji-menu";
+    modal.style.display = 'flex'; // Initial visible state
+
+    // Create the emote content
+    const emoteContent = document.createElement("div");
+    emoteContent.className = "emote-content";
+
+    modal.appendChild(emoteContent);
+    document.body.appendChild(modal);
+
+    // --- Filter function ---
+    function filterEmotes(event) {
+        const searchTerm = event.target.value.toLowerCase();
+        const emoteContainers = emoteContent.querySelectorAll(".emote-container");
+        emoteContainers.forEach((container) => {
+            const tags = container.dataset.tags.split(" ");
+            const matches = tags.some((tag) => tag.startsWith(searchTerm));
+            container.style.display = matches ? "block" : "none";
+        });
     }
-  }
+}
+
+// --- Add the emoji button to all textareas ---
+
+const emojis = [
+    '😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇',
+    '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚',
+    '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🥸',
+    '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️',
+    '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡',
+    '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓',
+    '🫣', '🫡', '🤗', '🤔', '🫢', '🤭', '🤫', '🤥', '😶', '😐',
+    '😑', '😬', '🫨', '🫠', '🙄', '😯', '😦', '😧', '😮', '😲',
+    '🥱', '😴', '🤤', '😪', '😵', '😵‍💫', '🫥', '🤐', '🥴', '🤢',
+    '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹',
+    '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖',
+    '🐵', '🐒', '🐶', '🐕', '🐩', '🐱', '🐈', '🦁', '🐯', '🐅',
+    '🐆', '🐴', '🐎', '🦄', '🐮', '🐷', '🐖', '🐗', '🐽', '🐏',
+    '🐑', '🐐', '🐪', '🐫', '🦙', '🐘', '🐭', '🐁', '🐀', '🐹',
+    '🐰', '🐇', '🐿️', '🦫', '🦔', '🦇', '🐻', '🐨', '🐼', '🦥',
+    '🦦', '🦨', '🦘', '🦡', '🐸', '🐊', '🐢', '🦎', '🐍', '🐲',
+    '🐉', '🐳', '🐋', '🐬', '🦭', '🦈', '🐟', '🐠', '🐡', '🐙',
+    '🦑', '🦐', '🦞', '🦀', '🐌', '🦋', '🐛', '🐜', '🐝', '🪲',
+    '🐞', '🦗', '🪳', '🕷️'
+];
+
+const textInputs = document.querySelectorAll('textarea:not([type="search"]):not([role="searchbox"])');
+
+textInputs.forEach(input => {
+    if (input.nextElementSibling && input.nextElementSibling.classList.contains('emoji-button')) {
+        return;
+    }
+
+// Add CSS to document
+const emojiButtonCSS = `
+.emoji-button {
+  cursor: pointer;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+  user-select: none;
+  float: inline-end;
+  margin: 10px 10px 0 0;
+  filter: grayscale(100%);
+}
+
+.emoji-button:hover {
+  transform: scale(1.1);
+  filter: grayscale(0%);
+}
+  `;
+    document.head.insertAdjacentHTML('beforeend', `<style>${emojiButtonCSS}</style>`);
+
+    // Create emoji button element
+    const emojiButton = document.createElement("span");
+    emojiButton.classList.add("emoji-button");
+    emojiButton.innerHTML = "😂";
+
+    emojiButton.addEventListener("mouseenter", () => {
+        const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+        emojiButton.innerHTML = randomEmoji;
+        emojiButton.style.filter = 'grayscale(0%)';
+        emojiButton.style.transform = 'scale(1.1)';
+    });
+
+    emojiButton.addEventListener("mouseleave", () => {
+        const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+        emojiButton.style.filter = 'grayscale(80%)';
+        emojiButton.style.transform = 'scale(1)';
+    });
+
+    emojiButton.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const menu = document.getElementById("uni-emoji-menu");
+        if (menu) {
+            // Toggle visibility
+            const isHidden = window.getComputedStyle(menu).display === 'none';
+            menu.style.display = isHidden ? 'flex' : 'none';
+        } else {
+            // Create new menu
+            createModal(input, emojiButton.getBoundingClientRect());
+        }
+    });
+
+    function Menu(e) {
+        if (e && e.target && e.target !== document && e.target !== window) return;
+        const menu = document.getElementById("uni-emoji-menu");
+        if (menu) {
+            menu.style.display = 'none';
+        }
+    }
+
+    // Set parent to relative for absolute positioning
+    const textareaParent = input.parentElement;
+    if (textareaParent) {
+        if (getComputedStyle(textareaParent).position === 'static') {
+            textareaParent.style.position = 'relative';
+        }
+        textareaParent.appendChild(emojiButton);
+    }
+});
+
+// --- Close menu when clicking outside ---
+document.addEventListener('click', (e) => {
+    const menu = document.getElementById("uni-emoji-menu");
+    const emojiButtons = document.querySelectorAll('.emoji-button');
+    if (menu && !menu.contains(e.target) && !Array.from(emojiButtons).some(btn => btn.contains(e.target))) {
+        menu.style.display = 'none';
+    }
+});
+
+// Hotkey: Ctrl + Alt + E (Windows/Linux) to toggle emoji menu
+// Hotkey: Cmd + Option + E (Mac) to toggle emoji menu
+document.addEventListener('keydown', (e) => {
+    const isWinLinCombo = e.ctrlKey && e.altKey && !e.metaKey && e.key.toLowerCase() === 'e';
+    const isMacCombo = e.metaKey && e.altKey && !e.ctrlKey && e.key.toLowerCase() === 'e';
+
+    if (isWinLinCombo || isMacCombo) {
+        const menu = document.getElementById('uni-emoji-menu');
+        if (menu) {
+            const isHidden = window.getComputedStyle(menu).display === 'none';
+            menu.style.display = isHidden ? 'flex' : 'none';
+        }
+        e.preventDefault();
+    }
 });
 
 
@@ -744,4 +895,52 @@ settingsTab.addEventListener('click', () => {
   searchInput.placeholder = "Search gifs... (Coming soon!)";
 });
 
+
+(function enableDraggableMenuFromTop() {
+  let isDragging = false;
+  let offsetX = 0, offsetY = 0;
+
+  // Wait for DOM
+  function init() {
+    const frame = document.getElementById("uni-emoji-menu");
+    if (!frame) return;
+    const header = frame.querySelector(".topsearchbarbuttons");
+    if (!header) return;
+
+
+    header.style.cursor = "move"; // Visual cue
+
+    header.addEventListener("mousedown", function (e) {
+      isDragging = true;
+      const rect = frame.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+      e.preventDefault();
+    });
+
+    function onMouseMove(e) {
+      if (!isDragging) return;
+      frame.style.left = (e.clientX - offsetX) + "px";
+      frame.style.top = (e.clientY - offsetY) + "px";
+      frame.style.right = "auto";
+      frame.style.bottom = "auto";
+    }
+
+    function onMouseUp() {
+      isDragging = false;
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    }
+  }
+
+  // Wait for the menu to exist in DOM
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    setTimeout(init, 0);
+  }
+})();
 })();
