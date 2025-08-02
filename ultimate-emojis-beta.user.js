@@ -4,13 +4,13 @@
 // @description  Discord-style emoji/sticker/gif picker with favorites, pagination, search.
 // @author       ZukoXZoku
 // @icon         https://ptpimg.me/91xfz9.gif
-// @match        https://aither.cc/*
-// @match        https://blutopia.cc/*
-// @match        https://fearnopeer.com/*
-// @match        https://lst.gg/*
-// @match        https://reelflix.xyz/*
-// @match        https://upload.cx/*
-// @match        https://oldtoons.world/*
+// @match        https://aither.cc/
+// @match        https://blutopia.cc/
+// @match        https://fearnopeer.com/
+// @match        https://lst.gg/
+// @match        https://reelflix.xyz/
+// @match        https://upload.cx/
+// @match        https://oldtoons.world/
 // @grant        GM_xmlhttpRequest
 // @grant        GM_addStyle
 // @grant        GM_setValue
@@ -23,16 +23,17 @@
 /*
 -----------Bugs-----------
 
-
+1. Open menu position fixed
+2. Emoji button anywhere fixed
 
 -----------Removed-----------
 
-
+1. Emoji button anywhere.
 
 -----------Added-----------
 
-1. Added X Button to close the menu
-
+1. Added an "X" button to close the menu.
+2. The menu can now be dragged using the arrow button.
 
 -----------Stats-----------
 
@@ -41,9 +42,8 @@ Stickers: 5.670 - Coming soon
 
 -----------To-Do-----------
 
-
-2. Add the stickers json
-3. Update the settings button
+1. Add the stickers json
+2. Update the settings button
 
 ------------End-------------
 */
@@ -105,8 +105,8 @@ Stickers: 5.670 - Coming soon
 /* Container */
 #uni-emoji-menu {
     position: fixed;
-    bottom: 15px;
-    right: 15px;
+    left: 60%;
+    top: 10%;
     width: 440px;
     max-height: 75vh;
     background-color: #2f3136;
@@ -119,33 +119,22 @@ Stickers: 5.670 - Coming soon
     user-select: none;
     flex-direction: column;
     z-index: 9999999;
-    inset: 113.75px auto auto 1281px;
 }
 
-
-#uni-emoji-menu .topbar{
-    width: 100px;
-    height: 100px;
-    margin: 0 20px 0 0;
+.dragbtn {
+    color: #fefefe;
+    left: 5%;
+    position: absolute;
+    font-size: 18px;
 }
 
-.topbar .exitbtn{
+.exitbtn{
     color: #ff0000;
     cursor: pointer;
-    right: 18px;
+    right: 5%;
     position: absolute;
-    font-size: 25px;
+    font-size: 20px;
 }
-
-.topbar .dragbtn{
-    color: #ff0000;
-    cursor: pointer;
-    right: 18px;
-    position: absolute;
-    font-size: 25px;
-}
-
-
 
 /* Search input */
 #uni-emoji-search {
@@ -340,7 +329,7 @@ Stickers: 5.670 - Coming soon
 .topsearchbarbuttons {
     display: flex;
     gap: 10px;
-    margin: 8px 0 8px 8px;
+    margin: 35px 0 8px 8px;
 }
 .emojistab, .stickerstab {
     font-family: "gg sans", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
@@ -458,10 +447,8 @@ Stickers: 5.670 - Coming soon
 
   // Insert base HTML with unique IDs and classes
     container.innerHTML = `
-    <div class="topbar">
-  <!-- <div class="dragbtn"><i class="fa-solid fa-arrows-up-down-left-right"></i> -->
    <div class="exitbtn"><i class="fa-solid fa-xmark"></i></div>
-   </div>
+   <div class="dragbtn"><i class="fa fa-arrows" aria-hidden="true"></i></div>
     <div class="topsearchbarbuttons">
       <div class="giftab">GIFs</div>
       <div class="stickerstab">Stickers</div>
@@ -933,7 +920,7 @@ settingsTab.addEventListener('click', () => {
   function init() {
     const frame = document.getElementById("uni-emoji-menu");
     if (!frame) return;
-    const header = frame.querySelector(".topsearchbarbuttons");
+    const header = frame.querySelector(".dragbtn");
     if (!header) return;
 
 
