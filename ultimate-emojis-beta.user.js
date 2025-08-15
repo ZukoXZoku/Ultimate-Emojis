@@ -1,16 +1,16 @@
 // ==UserScript==
-// @name         Ultimate Emojis BETA
+// @name         Ultimate Emojis
 // @version      0.5
 // @description  Discord-style emoji/sticker/gif picker with favorites, pagination, search.
 // @author       ZukoXZoku
 // @icon         https://ptpimg.me/91xfz9.gif
-// @match        https://aither.cc/
-// @match        https://blutopia.cc/
-// @match        https://fearnopeer.com/
-// @match        https://lst.gg/
-// @match        https://reelflix.xyz/
-// @match        https://upload.cx/
-// @match        https://oldtoons.world/
+// @match        https://aither.cc/*
+// @match        https://blutopia.cc/*
+// @match        https://fearnopeer.com/*
+// @match        https://lst.gg/*
+// @match        https://reelflix.xyz/*
+// @match        https://upload.cx/*
+// @match        https://oldtoons.world/*
 // @grant        GM_xmlhttpRequest
 // @grant        GM_addStyle
 // @grant        GM_setValue
@@ -34,6 +34,7 @@
 
 1. Added an "X" button to close the menu.
 2. The menu can now be dragged using the arrow button.
+3. Allowed emoji button work on specific places DM's/Forums/Requests etc...
 
 -----------Stats-----------
 
@@ -46,6 +47,20 @@ Stickers: 5.670 - Coming soon
 2. Update the settings button
 
 ------------End-------------
+*/
+
+/* Note
+
+Feel free to collaborate with me, I could use some help on this project.
+I’m still learning JavaScript and sometimes use AI to maintain the script.
+I’m not perfect, but I want to create something people can have fun with.
+I do most of the work myself, and since I’m new to JavaScript, there are still things I’m figuring out.
+I promise I’ll rely less on AI as I learn more; for now, I only use it for parts I don’t fully understand yet.
+
+Thank you everyone! 
+
+Regards, ZukoXZoku ❤️✌️
+
 */
 
 
@@ -83,7 +98,7 @@ Stickers: 5.670 - Coming soon
   'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj28.json',
   'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/emojis/emj29.json',
   ]; // Do not touch this
-  const EMOJIS_PER_PAGE = 306;
+  const EMOJIS_PER_PAGE = 108;
 
   let allEmojis = [];
   let filteredEmojis = [];
@@ -105,8 +120,8 @@ Stickers: 5.670 - Coming soon
 /* Container */
 #uni-emoji-menu {
     position: fixed;
-    left: 60%;
-    top: 10%;
+    left: 70%;
+    top: 11%;
     width: 440px;
     max-height: 75vh;
     background-color: #2f3136;
@@ -563,20 +578,31 @@ Promise.all(JSON_URLS.map(fetchJson))
 img.addEventListener('click', () => {
   const bbcode = `[img=48]${emoji.url}[/img] `;
 
+// allow emoji button work
+const ids = ['chatbox__messages-create','new-comment__textarea', 'reply-comment', 'bbcode-message', 'bbcode-content', 'bbcode-signature', 'bbcode-about'];
+const input = document.querySelector(ids.map(id => `textarea#${id}`).join(', '));
 
-  const input = document.getElementById('chatbox__messages-create');
-  if (input && input.tagName.toLowerCase() === 'textarea') {
-    if (input.selectionStart !== undefined) {
-      const start = input.selectionStart;
-      const end = input.selectionEnd;
-      const current = input.value;
-      input.value = current.slice(0, start) + bbcode + current.slice(end);
-      input.selectionStart = input.selectionEnd = start + bbcode.length;
+if (input) {
+  const s = input.selectionStart;
+  const e = input.selectionEnd;
+
+  if (typeof s === 'number' && typeof e === 'number') {
+    if (typeof input.setRangeText === 'function') {
+      input.setRangeText(bbcode, s, e, 'end');
     } else {
-      input.value += bbcode;
+      const val = input.value;
+      input.value = val.slice(0, s) + bbcode + val.slice(e);
+      const pos = s + bbcode.length;
+      input.setSelectionRange(pos, pos);
     }
-    input.focus();
+  } else {
+    input.value += bbcode;
   }
+
+  input.focus();
+}
+
+
 
 
   img.style.opacity = '0.5';
@@ -731,83 +757,105 @@ const emojis = [
     '🐞', '🦗', '🪳', '🕷️'
 ];
 
-const textInputs = document.querySelectorAll('textarea:not([type="search"]):not([role="searchbox"])');
+(function ensureEmojiStyles() {
+  const STYLE_ID = 'emoji-button-style';
+  if (document.getElementById(STYLE_ID)) return;
 
-textInputs.forEach(input => {
-    if (input.nextElementSibling && input.nextElementSibling.classList.contains('emoji-button')) {
-        return;
+  const css = `
+    #global-emoji-button.emoji-button {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 2147483647;
+      cursor: pointer;
+      font-size: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, filter 0.2s;
+      user-select: none;
+      filter: grayscale(100%);
     }
-
-// Add CSS to document
-const emojiButtonCSS = `
-.emoji-button {
-  cursor: pointer;
-  font-size: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s;
-  user-select: none;
-  float: inline-end;
-  margin: 10px 10px 0 0;
-  filter: grayscale(100%);
-}
-
-.emoji-button:hover {
-  transform: scale(1.1);
-  filter: grayscale(0%);
-}
+    #global-emoji-button.emoji-button:hover {
+      transform: scale(1.1);
+      filter: grayscale(0%);
+    }
   `;
-    document.head.insertAdjacentHTML('beforeend', `<style>${emojiButtonCSS}</style>`);
+  const style = document.createElement('style');
+  style.id = STYLE_ID;
+  style.textContent = css;
+  document.head.appendChild(style);
+})();
 
-    // Create emoji button element
-    const emojiButton = document.createElement("span");
-    emojiButton.classList.add("emoji-button");
-    emojiButton.innerHTML = "😂";
+// Create or reuse the single global button on <body>
+let emojiButton = document.getElementById('global-emoji-button');
+if (!emojiButton) {
+  emojiButton = document.createElement('span');
+  emojiButton.id = 'global-emoji-button';
+  emojiButton.className = 'emoji-button';
+  emojiButton.innerHTML = '😂';
+  emojiButton.setAttribute('role', 'button');
+  emojiButton.setAttribute('aria-label', 'Insert emoji');
+  emojiButton.tabIndex = 0;
+  document.body.appendChild(emojiButton);
+}
 
-    emojiButton.addEventListener("mouseenter", () => {
-        const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-        emojiButton.innerHTML = randomEmoji;
-        emojiButton.style.filter = 'grayscale(0%)';
-        emojiButton.style.transform = 'scale(1.1)';
-    });
+// Helpers
+const textareaSelector = 'textarea:not([type="search"]):not([role="searchbox"])';
+function getActiveTextarea() {
+  const el = document.activeElement;
+  if (el && el.matches && el.matches(textareaSelector)) return el;
+  // Fallback to the first textarea if none is focused
+  return document.querySelector(textareaSelector);
+}
 
-    emojiButton.addEventListener("mouseleave", () => {
-        const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-        emojiButton.style.filter = 'grayscale(80%)';
-        emojiButton.style.transform = 'scale(1)';
-    });
+// Replace handlers so this can run multiple times without duplicates
+emojiButton.onmouseenter = () => {
+  const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+  emojiButton.innerHTML = randomEmoji;
+  emojiButton.style.filter = 'grayscale(0%)';
+  emojiButton.style.transform = 'scale(1.1)';
+};
 
-    emojiButton.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const menu = document.getElementById("uni-emoji-menu");
-        if (menu) {
-            // Toggle visibility
-            const isHidden = window.getComputedStyle(menu).display === 'none';
-            menu.style.display = isHidden ? 'flex' : 'none';
-        } else {
-            // Create new menu
-            createModal(input, emojiButton.getBoundingClientRect());
-        }
-    });
+emojiButton.onmouseleave = () => {
+  emojiButton.style.filter = 'grayscale(80%)';
+  emojiButton.style.transform = 'scale(1)';
+};
 
-    function Menu(e) {
-        if (e && e.target && e.target !== document && e.target !== window) return;
-        const menu = document.getElementById("uni-emoji-menu");
-        if (menu) {
-            menu.style.display = 'none';
-        }
+emojiButton.onclick = (e) => {
+  e.stopPropagation();
+  const input = getActiveTextarea();
+  if (!input) return; // No textarea to target
+
+  const menu = document.getElementById('uni-emoji-menu');
+  if (menu) {
+    const isHidden = window.getComputedStyle(menu).display === 'none';
+    menu.style.display = isHidden ? 'flex' : 'none';
+  } else {
+    // Anchor modal to the button's position
+    createModal(input, emojiButton.getBoundingClientRect());
+  }
+};
+
+emojiButton.onkeydown = (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    emojiButton.click();
+  }
+};
+
+(function addGlobalDismissHandlers() {
+  const FLAG = '__emojiHandlersAdded__';
+  if (window[FLAG]) return;
+  window[FLAG] = true;
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const menu = document.getElementById('uni-emoji-menu');
+      if (menu) menu.style.display = 'none';
     }
-
-    // Set parent to relative for absolute positioning
-    const textareaParent = input.parentElement;
-    if (textareaParent) {
-        if (getComputedStyle(textareaParent).position === 'static') {
-            textareaParent.style.position = 'relative';
-        }
-        textareaParent.appendChild(emojiButton);
-    }
-});
+  });
+})();
 
 
 document.querySelectorAll('.exitbtn').forEach(button => {
