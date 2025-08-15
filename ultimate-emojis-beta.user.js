@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Ultimate Emojis
+// @name         Ultimate Emojis BETA (for tests)
 // @version      0.5
 // @description  Discord-style emoji/sticker/gif picker with favorites, pagination, search.
 // @author       ZukoXZoku
