@@ -8,4 +8,7 @@
 > This script has been tested and currently works only on Unity 3D v9.1.7. I haven’t found any issues so far, and if it continues to work in future versions, that would be great!
 
 > To-do list
-- [ ] coming soon
+- [ ] Load faster the emojis
+- [X] Many things added
+- [ ] Fix API key's saving process
+- [ ] Fix Menu UI Responsive and settings buttons etc..
