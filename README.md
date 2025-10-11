@@ -13,3 +13,27 @@
 - [ ] Fix API key's saving process
 - [ ] Fix Menu UI Responsive and settings buttons etc..
 - [ ] Fix Settings UI need a lot of CSS work.
+
+
+# JSON pack Example
+You have to use a raw json file URL, the example is below.
+
+**Quick example**
+```json
+{
+    "name_here": {
+        "url": "https://cdn.cdn.cool/cool.png",
+        "tags": [
+            "name_emoji_number",
+            "1234"
+        ]
+    },
+    "name_here_2": {
+        "url": "https://cdn.cdn.cool/cool.png",
+        "tags": [
+            "name_emoji_number",
+            "1235"
+        ]
+    }
+}
+```
