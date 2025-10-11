@@ -12,3 +12,4 @@
 - [X] Many things added
 - [ ] Fix API key's saving process
 - [ ] Fix Menu UI Responsive and settings buttons etc..
+- [ ] Fix Settings UI need a lot of CSS work.
