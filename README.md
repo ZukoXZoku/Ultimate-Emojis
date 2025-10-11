@@ -22,16 +22,16 @@ You have to use a raw json file URL, the example is below.
 ```json
 {
     "name_here": {
-        "url": "https://cdn.cdn.cool/cool.png",
+        "url": "https://cdn.cdn.cool/cool.gif",
         "tags": [
-            "name_emoji_number",
+            "name_gif_number",
             "1234"
         ]
     },
     "name_here_2": {
-        "url": "https://cdn.cdn.cool/cool.png",
+        "url": "https://cdn.cdn.cool/cool.gif",
         "tags": [
-            "name_emoji_number",
+            "name_gif_number",
             "1235"
         ]
     }
