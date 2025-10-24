@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Ultimate Emojis
-// @version      1.0
+// @name         Ultimate Emojis [Testing Version]
+// @version      1.0.2
 // @description  Discord-style emoji/sticker/gif picker with favorites, pagination, search, and a customizable Home screen.
 // @author       ZukoXZoku
 // @icon         https://ptpimg.me/91xfz9.gif
@@ -22,7 +22,6 @@
 // @grant        GM_xmlhttpRequest
 // @connect      raw.githubusercontent.com
 // @connect      tenor.googleapis.com
-// @connect      emojipedia.org
 // @connect      api.giphy.com
 // @connect      api.imgur.com
 // @connect      api.tumblr.com
@@ -34,10 +33,20 @@
 (function () {
   'use strict';
 
+  if (typeof window.GM_addStyle !== 'function') {
+    window.GM_addStyle = function (css) {
+      const style = document.createElement('style');
+      style.type = 'text/css';
+      style.textContent = css;
+      document.head.appendChild(style);
+      return style;
+    };
+  }
+
   const STICKERS_JSON_URLS = [
     'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/stickers/stkrs.json'
   ];
-  const VERSION = '1.0.0';
+  const VERSION = '1.0.2';
   const UI_VERSION = '1.0';
 
   const DEFAULTS = {
@@ -410,10 +419,144 @@
 #global-emoji-button.emoji-button{position:fixed;right:15px;bottom:35px;z-index:2147483647;cursor:pointer;font-size:38px;display:inline-flex;align-items:center;justify-content:center;transition:transform .2s,filter .2s;user-select:none;filter:grayscale(100%)}
 #global-emoji-button.emoji-button:hover{transform:scale(1.1);filter:grayscale(0%)}
   `;
+
+    const extraHomeCss = `
+#uni-emoji-menu #uni-home-panel .hero{
+  position:relative;
+  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.20)),
+              radial-gradient(1200px 180px at -10% -30%, var(--accent), transparent 55%),
+              radial-gradient(600px 140px at 110% 0%, #2ce6ff88, transparent 60%);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:14px;
+  padding:18px 16px;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  align-items:center;
+  gap:14px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04), 0 10px 30px rgba(0,0,0,.35)
+}
+#uni-emoji-menu #uni-home-panel .hero::after{
+  content:'';
+  position:absolute; inset:-2px;
+  background: conic-gradient(from 120deg at 80% -20%, rgba(88,101,242,.45), transparent 25%, rgba(44,230,255,.35), transparent 50%);
+  filter: blur(50px); opacity:.25; pointer-events:none
+}
+#uni-emoji-menu #uni-home-panel .hero-icon{
+  width:56px;height:56px;display:grid;place-items:center;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.18), rgba(255,255,255,0) 60%), var(--tile-bg);
+  border:1px solid rgba(255,255,255,.06); border-radius:14px;
+  box-shadow:0 6px 20px rgba(0,0,0,.35); font-size:26px
+}
+#uni-emoji-menu #uni-home-panel .hero-title{font-size:18px;font-weight:800;letter-spacing:.2px}
+#uni-emoji-menu #uni-home-panel .hero-sub{opacity:.85;margin-top:4px}
+#uni-emoji-menu #uni-home-panel .hero-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+#uni-emoji-menu #uni-home-panel .hero-actions .status-badge{margin-left:2px}
+
+#uni-emoji-menu .btn.brand.github{background:#0d1117;color:#c9d1d9;border:1px solid #30363d}
+#uni-emoji-menu .btn.brand.github:hover{background:#161b22;box-shadow:0 8px 24px rgba(0,0,0,.45),0 0 0 1px rgba(88,101,242,.18)}
+#uni-emoji-menu .btn.brand.oujs{background:linear-gradient(135deg,#f7df1e,#f2cf01);color:#141414;border:1px solid rgba(0,0,0,.25)}
+#uni-emoji-menu .btn.brand.oujs:hover{filter:saturate(1.1) brightness(.98);box-shadow:0 8px 22px rgba(247,223,30,.25)}
+#uni-emoji-menu .btn.brand i{margin-right:6px}
+
+#uni-emoji-menu .home-grid{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+#uni-emoji-menu .home-card{
+  position:relative;
+  background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.18));
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:12px;padding:14px;margin:6px 0;
+  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04), 0 8px 24px rgba(0,0,0,.35)
+}
+#uni-emoji-menu .home-card:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,0,0,.45)}
+#uni-emoji-menu .home-card.highlight{border-color:rgba(88,101,242,.35)}
+#uni-emoji-menu .home-card h4{display:flex;align-items:center;gap:8px}
+#uni-emoji-menu .home-card .kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:6px}
+#uni-emoji-menu .home-card .kpi{background:#202225;border:1px solid var(--border-color);border-radius:10px;padding:10px;text-align:center}
+#uni-emoji-menu .home-card .kpi .val{font-size:18px;font-weight:800}
+#uni-emoji-menu .home-card .kpi .lbl{opacity:.75;font-size:12px}
+
+#uni-emoji-menu .prov-list{display:grid;grid-template-columns:1fr;gap:8px;margin-top:6px}
+#uni-emoji-menu .prov-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#uni-emoji-menu .prov-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid #2f3136;background:#202225;color:#b9bbbe}
+#uni-emoji-menu .prov-badge .dot{width:8px;height:8px;border-radius:50%;background:#ff6464;box-shadow:0 0 8px currentColor}
+#uni-emoji-menu .prov-badge.ok{background:rgba(67,181,129,.15);color:#7fffb2;border-color:rgba(67,181,129,.35)}
+#uni-emoji-menu .prov-badge.ok .dot{background:#43b581}
+#uni-emoji-menu .prov-badge.off{background:rgba(255,100,100,.12);color:#ff9a9a;border-color:rgba(255,100,100,.25)}
+#uni-emoji-menu .chip{background:linear-gradient(180deg,#1f2124,#1b1d21);border-color:rgba(255,255,255,.06)}
+`;
+GM_addStyle(extraHomeCss);
   GM_addStyle(cssBase);
   let CURRENT_CSS_BASE = cssBase;
 
+
+
+  const LINKS = Object.freeze({
+      github: 'https://github.com/ZukoXZoku/Ultimate-Emojis',
+      oujs: 'https://openuserjs.org/scripts/ZukoXZoku/Ultimate_Emojis'
+});
+
   container.innerHTML = `
+    <div id="uni-home-panel">
+      <div class="hero">
+        <div class="hero-icon"><img src="https://ptpimg.me/91xfz9.gif" width="26px"/></div>
+        <div>
+          <div class="hero-title">
+            Ultimate Emojis
+            <span class="chip">v${VERSION}</span>
+            <span class="chip">UI ${UI_VERSION}</span>
+          </div>
+          <div class="hero-sub">Fast emojis, stickers & GIFs with favorites and theming.</div>
+          <div class="hero-actions">
+            <button class="btn brand github" id="home-open-github"><i class="fa-brands fa-github"></i> GitHub</button>
+            <button class="btn brand oujs" id="home-open-oujs"><i class="fa-brands fa-js"></i> OpenUserJS</button>
+            <button class="btn secondary" id="home-open-download"><i class="fa-solid fa-download"></i> Download</button>
+            <button class="btn" id="home-check-update"><i class="fa-solid fa-rotate"></i> Check updates</button>
+            <span class="status-badge" id="home-update-status"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-grid">
+        <div class="home-card highlight">
+          <h4><i class="fa-solid fa-chart-simple"></i> Content status</h4>
+          <div class="kpis">
+            <div class="kpi">
+              <div class="val" id="home-emoji-count">loading…</div>
+              <div class="lbl">Emojis</div>
+            </div>
+            <div class="kpi">
+              <div class="val" id="home-sticker-count">loading…</div>
+              <div class="lbl">Stickers</div>
+            </div>
+            <div class="kpi">
+              <div class="val" id="home-fav-total">0</div>
+              <div class="lbl">Favorites</div>
+            </div>
+          </div>
+          <div style="margin-top:10px" class="chip">Local GIFs: <span id="home-localgifs-status">–</span></div>
+        </div>
+
+        <div class="home-card">
+          <h4><i class="fa-solid fa-plug"></i> Providers</h4>
+          <div class="prov-list">
+            <div class="prov-row">Tenor <span id="home-prov-tenor" class="prov-badge"><span class="dot"></span> –</span></div>
+            <div class="prov-row">GIPHY <span id="home-prov-giphy" class="prov-badge"><span class="dot"></span> –</span></div>
+            <div class="prov-row">Imgur <span id="home-prov-imgur" class="prov-badge"><span class="dot"></span> –</span></div>
+            <div class="prov-row">Tumblr <span id="home-prov-tumblr" class="prov-badge"><span class="dot"></span> –</span></div>
+          </div>
+        </div>
+
+        <div class="home-card">
+          <h4><i class="fa-solid fa-lightbulb"></i> Tips</h4>
+          <ul style="padding-left:16px; margin:6px 0 0 0; opacity:.85">
+            <li>Drag the title bar to move the panel.</li>
+            <li>Right-click items for more actions.</li>
+            <li>Use “Favorites only” filters on each tab.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
     <div class="uni-header">
       <div class="dragbtn" title="Drag"><i class="fa-solid fa-up-down-left-right"></i></div>
       <div class="uni-title">Ultimate Emojis [Beta]<span class="uni-version">v${VERSION}</span><span class="uni-status"></span></div>
@@ -435,13 +578,11 @@
           <div class="home-card">
             <h4>Menu</h4>
             <div>Name: <b>Ultimate Emojis - Beta</b></div>
-            <div>Description: This is a beta version but everything works fine, <b>DON'T PANIC</b>
+            <div>Description: This is a beta version but everything works fine, <b>DON'T PANIC</b></div>
             <div>Version: <span id="home-version">v${VERSION}</span></div>
-            <br />
             <div style="margin:10px;display:flex;gap:8px;flex-wrap:wrap;">
               <button class="btn" id="home-check-update">Check for updates</button>
               <button class="btn secondary" id="home-open-download">Open download page</button>
-              <a href="https://github.com/ZukoXZoku/Ultimate-Emojis" target="_blank"><button class="btn secondary"><i class="fa-brands fa-github"></i></button></a>
               <span class="status-badge" id="home-update-status"></span>
             </div>
           </div>
@@ -457,13 +598,8 @@
             <div>GIPHY: <span id="home-prov-giphy">–</span></div>
             <div>Imgur: <span id="home-prov-imgur">–</span></div>
             <div>Tumblr: <span id="home-prov-tumblr">–</span></div>
-        </div>
-          <br />
-          <div><h3>📝Note:</h3>
-            <b style="color: #df9328">I’m leaving this project open so anyone can contribute, improve, and create their own version.
-            I don’t have time to keep developing it myself, and I’d rather not rely on AI to make the fixes.
-            Now it’s your turn, jump in, support the project, and make it amazing!</b>
           </div>
+        </div>
       </div>
     </div>
 
@@ -768,6 +904,54 @@
       </div>
     </div>
   `;
+
+function updateHomeStatsUI() {
+  const favEmojiCnt = (favEmojiV2?.size || 0) + (favEmojiLegacy?.size || 0);
+  const favStickerCnt = (favStickerV2?.size || 0) + (favStickerLegacy?.size || 0);
+  const favGifCnt = (favGifV2?.size || 0) + (favGifLegacy?.size || 0);
+  const totalFavs = favEmojiCnt + favStickerCnt + favGifCnt;
+
+  const ec = document.getElementById('home-emoji-count');
+  const sc = document.getElementById('home-sticker-count');
+  const lf = document.getElementById('home-localgifs-status');
+  const ft = document.getElementById('home-fav-total');
+
+  if (ec) ec.textContent = allEmojis?.length ? String(allEmojis.length) : 'loading…';
+  if (sc) sc.textContent = allStickers?.length ? String(allStickers.length) : 'loading…';
+  if (lf) lf.textContent = localGifStatus || '–';
+  if (ft) ft.textContent = String(totalFavs);
+}
+
+function updateHomeProvidersUI() {
+  const map = [
+    ['tenor', settings.provTenor],
+    ['giphy', settings.provGiphy],
+    ['imgur', settings.provImgur],
+    ['tumblr', settings.provTumblr],
+  ];
+  map.forEach(([name, enabled]) => {
+    const el = document.getElementById(`home-prov-${name}`);
+    if (!el) return;
+    el.classList.add('prov-badge');
+    el.classList.remove('ok', 'off');
+    el.classList.add(enabled ? 'ok' : 'off');
+    el.innerHTML = `<span class="dot"></span>${enabled ? 'Enabled' : 'Disabled'}`;
+  });
+}
+
+(function enhanceHome() {
+  const open = (url) => window.open(url, '_blank', 'noopener,noreferrer');
+  document.getElementById('home-open-github')?.addEventListener('click', () => open(LINKS.github));
+  document.getElementById('home-open-oujs')?.addEventListener('click', () => open(LINKS.oujs));
+
+  // Keep these in sync with your settings toggles
+  ['sw-tenor','sw-giphy','sw-imgur','sw-tumblr'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', updateHomeProvidersUI);
+  });
+
+  updateHomeProvidersUI();
+  updateHomeStatsUI();
+})();
 
   const gridEmoji = document.getElementById('uni-emoji-grid');
   const gridStickers = document.getElementById('uni-sticker-grid');
@@ -1984,7 +2168,6 @@
   function refreshApiUI() {
     const t = getApiKey('tenor'); const g = getApiKey('giphy'); const i = getApiKey('imgur'); const u = getApiKey('tumblr');
     tenorKeyInput.value = t; giphyKeyInput.value = g; imgurKeyInput.value = i; tumblrKeyInput.value = u;
-    tenorKeyInput.type = 'password'; giphyKeyInput.type = 'password'; imgurKeyInput.type = 'password'; tumblrKeyInput.type = 'password';
     setStatus(document.getElementById('st-tenor'), !!t, t ? 'Saved' : 'Not set');
     setStatus(document.getElementById('st-giphy'), !!g, g ? 'Saved' : 'Not set');
     setStatus(document.getElementById('st-imgur'), !!i, i ? 'Saved' : 'Not set');
