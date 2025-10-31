@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ultimate Emojis
-// @version      1.0.1
+// @version      1.0.2
 // @description  Discord-style emoji/sticker/gif picker with favorites, pagination, search, and a customizable Home screen.
 // @author       ZukoXZoku
 // @icon         https://ptpimg.me/91xfz9.gif
@@ -13,7 +13,7 @@
 // @match        https://blutopia.cc/*
 // @match        https://fearnopeer.com/*
 // @match        https://lst.gg/*
-// @match        https://reelflix.xyz/*
+// @match        https://reelflix.cc/*
 // @match        https://upload.cx/*
 // @match        https://oldtoons.world/*
 // @grant        GM_addStyle
@@ -29,6 +29,20 @@
 // @connect      www.reddit.com
 // @grant        GM_setClipboard
 // ==/UserScript==
+
+/* Note
+
+Feel free to collaborate with me, I could use some help on this project.
+I’m still learning JavaScript and sometimes use AI to maintain the script.
+I’m not perfect, but I want to create something people can have fun with.
+I do most of the work myself, and since I’m new to JavaScript, there are still things I’m figuring out.
+I promise I’ll rely less on AI as I learn more; for now, I only use it for parts I don’t fully understand yet.
+
+Thank you everyone! 
+
+Regards, ZukoXZoku ❤️✌️
+
+*/
 
 (function () {
   'use strict';
@@ -46,7 +60,7 @@
   const STICKERS_JSON_URLS = [
     'https://raw.githubusercontent.com/ZukoXZoku/Ultimate-Emojis/refs/heads/main/stickers/stkrs.json'
   ];
-  const VERSION = '1.0.1';
+  const VERSION = '1.0.2';
   const UI_VERSION = '1.0';
 
   const DEFAULTS = {
@@ -757,8 +771,7 @@
         <div id="uni-changelog" style="display:none;">
           <div><b>${UI_VERSION}</b></div>
           <ul style="padding-left:16px;margin:8px 0">
-            <li>Hotfix, pages ain't loading hotfix update</li>
-            <li>Defaults: width 700px, height 650px</li>
+            <li>Added Reelflix new domain</li>
           </ul>
         </div>
       </div>
