@@ -18,6 +18,7 @@
 // @match        https://darkpeers.org/*
 // @match        https://luminarr.me/*
 // @match        https://lst.gg/*
+// @match        *://*/*
 // @grant        GM_addStyle
 // @grant        GM_setValue
 // @grant        GM_getValue
@@ -63,7 +64,7 @@
   // ═══════════════════════════════════════════════
   //  CONSTANTS
   // ═══════════════════════════════════════════════
-  const VERSION = '1.2.1';
+  const VERSION = '1.0.5';
   const LINKS = {
     github: 'https://github.com/ZukoXZoku/Ultimate-Emojis',
     openuserjs: 'https://openuserjs.org/scripts/ZukoXZoku/Ultimate_Emojis',
@@ -117,18 +118,56 @@
     'Misc': ['✅','☑️','✔️','❌','❎','✳️','✴️','❇️','©️','®️','™️','#️⃣','*️⃣','0️⃣','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟','ℹ️']
   };
 
-  const FLAG_DATA = '🏁🚩🎌🏴🏳️🏳️‍🌈🏳️‍⚧️🏴‍☠️🇦🇫🇦🇱🇩🇿🇦🇸🇦🇩🇦🇴🇦🇮🇦🇬🇦🇷🇦🇲🇦🇼🇦🇺🇦🇹🇦🇿🇧🇸🇧🇭🇧🇩🇧🇧🇧🇾🇧🇪🇧🇿🇧🇯🇧🇲🇧🇹🇧🇴🇧🇦🇧🇼🇧🇷🇧🇳🇧🇬🇧🇫🇧🇮🇰🇭🇨🇲🇨🇦🇨🇻🇨🇫🇹🇩🇨🇱🇨🇳🇨🇴🇰🇲🇨🇬🇨🇩🇨🇷🇭🇷🇨🇺🇨🇾🇨🇿🇩🇰🇩🇯🇩🇲🇩🇴🇪🇨🇪🇬🇸🇻🇬🇶🇪🇷🇪🇪🇸🇿🇪🇹🇫🇯🇫🇮🇫🇷🇬🇦🇬🇲🇬🇪🇩🇪🇬🇭🇬🇷🇬🇩🇬🇹🇬🇳🇬🇼🇬🇾🇭🇹🇭🇳🇭🇺🇮🇸🇮🇳🇮🇩🇮🇷🇮🇶🇮🇪🇮🇱🇮🇹🇯🇲🇯🇵🇯🇴🇰🇿🇰🇪🇰🇮🇽🇰🇰🇼🇰🇬🇱🇦🇱🇻🇱🇧🇱🇸🇱🇷🇱🇾🇱🇮🇱🇹🇱🇺🇲🇬🇲🇼🇲🇾🇲🇻🇲🇱🇲🇹🇲🇭🇲🇷🇲🇺🇲🇽🇫🇲🇲🇩🇲🇨🇲🇳🇲🇪🇲🇦🇲🇿🇲🇲🇳🇦🇳🇷🇳🇵🇳🇱🇳🇿🇳🇮🇳🇪🇳🇬🇰🇵🇲🇰🇳🇴🇴🇲🇵🇰🇵🇼🇵🇸🇵🇦🇵🇬🇵🇾🇵🇪🇵🇭🇵🇱🇵🇹🇶🇦🇷🇴🇷🇺🇷🇼🇸🇦🇸🇳🇷🇸🇸🇨🇸🇱🇸🇬🇸🇰🇸🇮🇸🇧🇸🇴🇿🇦🇰🇷🇸🇸🇪🇸🇱🇰🇸🇩🇸🇷🇸🇪🇨🇭🇸🇾🇹🇼🇹🇯🇹🇿🇹🇭🇹🇱🇹🇬🇹🇴🇹🇹🇹🇳🇹🇷🇹🇲🇹🇻🇺🇬🇺🇦🇦🇪🇬🇧🇺🇸🇺🇾🇺🇿🇻🇺🇻🇪🇻🇳🇾🇪🇿🇲🇿🇼'.match(/./gu);
+  const FLAG_DATA = '🏁🚩🎌🏴🏳️🏳️‍🌈🏳️‍⚧️🏴‍☠️🇦🇫🇦🇱🇩🇿🇦🇸🇦🇩🇦🇴🇦🇮🇦🇬🇦🇷🇦🇲🇦🇼🇦🇺🇦🇹🇦🇿🇧🇸🇧🇭🇧🇩🇧🇧🇧🇾🇧🇪🇧🇿🇧🇯🇧🇲🇧🇹🇧🇴🇧🇦🇧🇼🇧🇷🇧🇳🇧🇬🇧🇫🇧🇮🇰🇭🇨🇲🇨🇦🇨🇻🇨🇫🇹🇩🇨🇱🇨🇳🇨🇴🇰🇲🇨🇬🇨🇩🇨🇷🇭🇷🇨🇺🇨🇾🇨🇿🇩🇰🇩🇯🇩🇲🇩🇴🇪🇨🇪🇬🇸🇻🇬🇶🇪🇷🇪🇪🇪🇸🇿🇪🇹🇫🇯🇫🇮🇫🇷🇬🇦🇬🇲🇬🇪🇩🇪🇬🇭🇬🇷🇬🇩🇬🇹🇬🇳🇬🇼🇬🇾🇭🇹🇭🇳🇭🇺🇮🇸🇮🇳🇮🇩🇮🇷🇮🇶🇮🇪🇮🇱🇮🇹🇯🇲🇯🇵🇯🇴🇰🇿🇰🇪🇰🇮🇽🇰🇰🇼🇰🇬🇱🇦🇱🇻🇱🇧🇱🇸🇱🇷🇱🇾🇱🇮🇱🇹🇱🇺🇲🇬🇲🇼🇲🇾🇲🇻🇲🇱🇲🇹🇲🇭🇲🇷🇲🇺🇲🇽🇫🇲🇲🇩🇲🇨🇲🇳🇲🇪🇲🇦🇲🇿🇲🇲🇳🇦🇳🇷🇳🇵🇳🇱🇳🇿🇳🇮🇳🇪🇳🇬🇰🇵🇲🇰🇳🇴🇴🇲🇵🇰🇵🇼🇵🇸🇵🇦🇵🇬🇵🇾🇵🇪🇵🇭🇵🇱🇵🇹🇶🇦🇷🇴🇷🇺🇷🇼🇸🇦🇸🇳🇷🇸🇸🇨🇸🇱🇸🇬🇸🇰🇸🇮🇸🇧🇸🇴🇿🇦🇰🇷🇸🇸🇪🇸🇱🇰🇸🇩🇸🇷🇸🇪🇨🇭🇸🇾🇹🇼🇹🇯🇹🇿🇹🇭🇹🇱🇹🇬🇹🇴🇹🇹🇹🇳🇹🇷🇹🇲🇹🇻🇺🇬🇺🇦🇦🇪🇬🇧🇺🇸🇺🇾🇺🇿🇻🇺🇻🇪🇻🇳🇾🇪🇿🇲🇿🇼'.match(/./gu);
 
-  const KAOMOJI = {
-    'Happy': ['(◕‿◕)','(｡◕‿◕｡)','(◠‿◠)','(✿◠‿◠)','(◡‿◡)','ʕ•ᴥ•ʔ','(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧','(≧◡≦)','(◕ᴗ◕✿)','☆*:.｡.o(≧▽≦)o.｡.:*☆','(◍•ᴗ•◍)','(灬º‿º灬)♡'],
-    'Sad': ['(╥_╥)','(T_T)','(;_;)','(ノ_<。)','(´;ω;`)','(ಥ﹏ಥ)','(っ˘̩╭╮˘̩)っ','(｡•́︿•̀｡)'],
-    'Angry': ['(╬ Ò﹏Ó)','(ﾉಠ益ಠ)ﾉ','(ノ`Д´)ノ','(`Д´)','(≖_≖ )','(눈_눈)','ヽ(`Д´)ﾉ'],
-    'Love': ['(♡°▽°♡)','(◕‿◕)♡','(✿ ♥‿♥)','♡(ŐωŐ人)','(´,,•ω•,,)♡','(◍•ᴗ•◍)❤','(灬♥ω♥灬)'],
-    'Actions': ['┻━┻ ︵ヽ(`Д´)ﾉ︵ ┻━┻','(╯°□°)╯︵ ┻━┻','┬─┬ノ( º _ ºノ)','¯\\_(ツ)_/¯','(ノ°∀°)ノ⌒・*:.｡','ᕕ( ᐛ )ᕗ','(•̀ᴗ•́)و','(ง •̀_•́)ง'],
-    'Animals': ['ʕ•ᴥ•ʔ','(=^・ω・^=)','(=^-ω-^=)','ʕ ꈍᴥꈍʔ','(◕ᴥ◕)','U•ᴥ•U','(ΦωΦ)','₍ᐢ..ᐢ₎']
-  };
+const KAOMOJI = {
+  'Happy': ['(◕‿◕)', '(｡◕‿◕｡)', '(◠‿◠)', '(✿◠‿◠)', '(◡‿◡)', 'ʕ•ᴥ•ʔ', '(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧', '(≧◡≦)', '(◕ᴗ◕✿)', '☆*:.｡.o(≧▽≦)o.｡.:*☆', '(◍•ᴗ•◍)', '(灬º‿º灬)♡', '( ´ ▽ ` )ﾉ', '(o˘◡˘o)', '(≧▽≦)', '(⌒‿⌒)', '(｡･ω･｡)', '(´ ▽ ` )', '( ´ ω ` )', '｡ﾟ(TヮT)ﾟ｡', '(ﾉ>ω<)ﾉ', '(｡♥‿♥｡)', 'ヾ(≧▽≦*)o', '(≧◡≦) ', '(˘︶˘).｡.:*♡', '(ू•ᴗ•ू❁)', '(◠‿◠)', '(｡･ω･｡)ﾉ♡', '( ´ ∀ `)ノ', '(*≧ω≦*)', 'ヾ(≧▽≦*)o', '٩(◕‿◕｡)۶', '(●\'◡\'●)', '(´• ω •`)', '(◠˘◠)', '(˵ ͡° ͜ʖ ͡°˵)', '( ´ ▽ ` )ﾉ', '＼(≧▽≦)／', '(⁀ᗢ⁀)', '(≖ᴗ≖✿)', '(◠‿◠✿)', '(人´∀`)☆', '(ﾉ^_^)ﾉ', '(*^‿^*)', '( ´ ꒳ ` )', '( ˘ ³˘)♥', '(⌬̈⃝)', '( ˘ᴥ˘ )', '(˶‾᷄ ⁻̫ ‾᷅˵)', '(ᵔᴥᵔ)', '(◕‿◕)', '(≧◠‿◠≦)', '(✿ ◕‿◕)', '(◕‿◕✿)', '⊂(◉‿◉)つ', '(◉‿◉)', '(｡◕‿◕｡)', '(◠‿◠)', '(◕ᴗ◕✿)', '(｡◕‿◕｡)', '(★^O^★)', '(^_^)b', '(＾▽＾)', 'ヾ(＾-＾)ノ', '(´ ▽ ` )', '(●\'◡\'●)', '╰(´︶`)╯', '( ´ ▽ ` )b', '٩(◕‿◕｡)۶', '(⌒‿⌒)', 'ヾ(●´∀｀●)', '(●\'◡\'●)', '(*^▽^*)', '(≧◡≦)', '(✿╹◡╹)', '(✧ω✧)', '(*≧ω≦*)', '(◕‿◕)', '(*≧▽≦)', 'ヾ(≧▽≦*)o', '(≧◡≦)', '(✯ᴗ✯)', 'ヾ(◍°∇°◍)ﾉﾞ', '(◠‿◠)', '(◕‿◕)', '(｡◕‿◕｡)', '(*^▽^*)', '(*・ω・)ﾉ', '(￣▽￣)ノ', 'ヾ(≧▽≦*)o', '(*´ω｀*)', '(´･ω･`)', '(◕‿◕)', 'ヾ(・ω・`)'],
+  'Sad': ['(╥_╥)', '(T_T)', '(;_;)', '(ノ_<。)', '(´;ω;`)', '(ಥ﹏ಥ)', '(っ˘̩╭╮˘̩)っ', '(｡•́︿•̀｡)', '(◞‸◟)', '(´•ω•̥`)', '(๑•́ ₃ •̀๑)', '(｡•́︿•̀｡)', '(╥﹏╥)', '(っ˘̩╭╮˘̩)っ', '(ノAノ)', '( ´_ゝ`)', '( ╥ω╥ )', '(╯_╰)', '(･ω･)つ⊂(･ω･)', '(҂◡_◡)', '(⋋▂⋋)', '(ꈍᴗꈍ)', '(≚ᄌ≚)ƶƵ', '( ︶︿︶)', '(¬_¬)', '( ⟩ ⟩ ⟩', '(ꐦ°᷄д°᷅)', '(ꐦ𝅒_𝅒) ', '(ꐦ╭╮𝅒_𝅒)', '( 𝙨𝙤𝙗𝙨 )', '( ≧Д≦)', '( 🔴_🔴 )', '( ´_ゝ`)', '( ←_← )', '( →_→ )', '( ⁽₍₍₍_⁾₎₎₎ )', '(◞‸◟)', '(ㄒoㄒ)', '(T⌓T)', '(჻ጒ౪჻ )', '(₍₍⁽⁽(ી₍₍⁽⁽(ી ซง₎₎⁾⁾₎₎⁾⁾', '(u‿ฺu)', '( ◡︵◡)', '( ´_ゝ`)', '(μ_μ)', '(꒪⌓꒪)', '(｡•́︿•̀｡)', '(╥﹏╥)', '(◞‸◟)', '(;﹏;)', '(︶︹︶)', '(っ˘̩╭╮˘̩)っ', '(´°̥̥̥̥̥̥̥̥ω°̥̥̥̥̥̥̥̥`)', '( ✋˘ 😪 ˘ )', '(ー_ー )!!', '( ✋˘ ˘ )', '( ˘⌣˘ )', '( ˘︹˘ )', '(；′⌒`)', '(´胱圩鄄', '(T⌓T)', '(≖_≖ )', '( ﾟдﾟ)', '( bothered )', '(noise)', '(；￣Д￣)', '(・_・;)', '(・・;)', '(￣～￣;)', '(＠_＠)', '(ToT)', '(T_T)', '(T_T)', '(T_T)', '(_ _)', '．．●', '(°°)', '(°△°)', '(°ω°)', '(´･･`)', '(´・ω・`)', '(´・ω・`)', '(´・ω・`)', '(｡-_-)', '(´°̥̥̥̥̥̥̥̥ω°̥̥̥̥̥̥̥̥`)', '(Ｔ▽Ｔ)', '(T_T)', '(;_;)', '(╥_╥)', '(╯°□°)╯︵ ┻━┻', '┻━┻ ︵ ヽ(°□° )ノ ︵ ┻━┻'],
+  'Angry': ['(╬ Ò﹏Ó)', '(ﾉಠ益ಠ)ﾉ', '(ノ`Д´)ノ', '(`Д´)', '(≖_≖ )', '(눈_눈)', 'ヽ(`Д´)ﾉ', '(｡•ˇ‸ˇ•｡)', '(>人<)', '(¬_¬)', '(沉思)', '(ꐦ°᷄д°᷅)', '(╬ﾟ◥益◤ﾟ)', '(ノಠ ∩ಠ)ノ', '(≧Д≦)', '(ノ°△°)ノ︵┻━┻', '┻━┻ ︵ヽ(`Д´)ﾉ︵ ┻━┻', '(╯°□°)╯︵ ┻━┻', '╭∩╮（︶︿︶）╭∩╮', '(ಠ_ಠ)┌∩┐', '(ノಠ益ಠ)ノ彡┻━┻', '(╬ Ò﹏Ó)', '(ꐦ°᷄д°᷅)', '( ≧Д≦)', '(ꐦ╭╮𝅒_𝅒)', '(O_O)', '(＃＞＜)', '(＞＜)', '(＞﹏＜)', '( ` ω ´ )', '( ` ω ´ )', '( ` ω ´ )', '٩(╬ʘ益ʘ╬)۶', '(◞≼◉◞ ༽ ✧', '( ` ∇ ´ )', '(メ▼へ▼)ノ', '( ` Д ´)', 'o(>< )o', 'o(>< )o', 'ε=ε=ε=ε=ε=ε=┌(;￣◇￣)┘', 'ε=ε=ε=ε=ε=ε=┌(;￣◇￣)┘', '(ノಠ益ಠ)ノ彡┻━┻', '(╬ Ò﹏Ó)', '(ꐦ°᷄д°᷅)', 'ε=ε=ε=ε=ε=ε=┌(;￣◇￣)┘', 'ε=ε=ε=┌( >_<)┘', 'ε=ε=ε=┌( >_<)┘', '٩(╬ʘ益ʘ╬)۶', '(҂` ﾛ ´)╬', '(҂` ﾛ ´)╬', '୧(๑ ಠ 益 ಠ)૭', '୧(๑ ಠ 益 ಠ)૭', 'ψ(｀∇´)ψ', 'ψ(｀∇´)ψ', '(ノ ` Д)ノ', '(ノ ` Д)ノ', '(；￣Д￣)', '(；￣Д￣)', '( ` Д´)', '( ` Д´)', '༼ つ ◕_◕ ༽つ', '༼ つ ◕_◕ ༽つ', '( ` ω ´ )', '( ` ω ´ )', '( ` ∇ ´ )', '( ` ∇ ´ )', '(メ▼へ▼)ノ', '(メ▼へ▼)ノ', '(ꈍ﹃ꈍ)', '(ꈍ﹃ꈍ)', '(ꐦ°᷄д°᷅)', '(ꐦ°᷄д°᷅)', '٩(╬ʘ益ʘ╬)۶', '٩(╬ʘ益ʘ╬)۶', 'o(>< )o', 'o(>< )o'],
+  'Love': ['(♡°▽°♡)', '(◕‿◕)♡', '(✿ ♥‿♥)', '♡(ŐωŐ人)', '(´,,•ω•,,)♡', '(◍•ᴗ•◍)❤', '(灬♥ω♥灬)', '(◕ᴗ◕✿)', '(≧◡≦)♡', '( ´ ∀ `)ノ～ ♡', '♡＾▽＾♡', '(ღ˘⌣˘ღ)', '( ˘ ³˘)♥', '( ⚆ _ ⚆ )', '(♡˙︶˙♡)', '(♥ω♥*)', '(❤ω❤)', '( ´ ▽ ` )ﾉ♥', '(ɔˆ ³(ˆ⌣ˆc)', '(◡‿◡✿)', '( ˘ᴥ˘ )❤', '(¢aldara)', '(´,,•ω•,,)', '♡(˃͈ દ ˂͈ ༶ )', '( ˘ ³˘)♥', '( ´ ∀ `)♥', '( ´ ▽ ` )♥', '(´,,•ω•,,)♡', '(´,,•ω•,,)♡', '(◍•ᴗ•◍)❤', '(◍•ᴗ•◍)❤', '( ´ ∀ `)♥', '(*^^*)', '(◕‿◕)♡', '( ´ ▽ ` )b', '(*^▽^*)', '(*^▽^*)', '(✿ ♥‿♥)', '(*´ω｀*)', '(*´ω｀*)', '(*´ω｀*)', '( ´ ▽ ` )♥', '( ´ ▽ ` )♥', '(｡♥‿♥｡)', '(｡♥‿♥｡)', '(｡♥‿♥｡)', '( ´ ∀ `)♥', '( ´ ∀ `)♥', '( ´ ∀ `)♥', '⊂(◉‿◉)つ', '(づ￣ ³￣)づ', '(づ￣ ³￣)づ', '(っ◔◡◔)っ ♥', '(っ◔◡◔)っ ♥', '( ´ ▽ ` )b', '(*^▽^*)', '(◕‿◕)♡', '(*^^*)', '(*^^*)', '(◕‿◕)♡', '(*^^*)', '(*^^*)', '(◕‿◕)♡', '(◕‿◕)♡', '( ´ ∀ `)♥', '( ´ ∀ `)♥', '( ´ ▽ ` )b', '(*^▽^*)', '(◕‿◕)♡', '(*^^*)', '(✿ ◕‿◕)', '(✿ ◕‿◕)', '(✿ ◕‿◕)', '(✿ ◕‿◕)', '(✿ ◕‿◕)', '(✿ ◕‿◕)', '(✿ ◕‿◕)', '(✿ ◕‿◕)', '(✿ ◕‿◕)', '(✿ ◕‿◕)', '(✿ ◕‿◕)', '(✿ ◕‿◕)', '(✿ ◕‿◕)', '(✿ ◕‿◕)', '(✿ ◕‿◕)', '(✿ ◕‿◕)'],
+  'Actions': ['┻━┻ ︵ヽ(`Д´)ﾉ︵ ┻━┻', '(╯°□°)╯︵ ┻━┻', '┬─┬ノ( º _ ºノ)', '¯\\_(ツ)_/¯', '(ノ°∀°)ノ⌒･*:.｡', 'ᕕ( ᐛ )ᕗ', '(•̀ᴗ•́)و', '(ง •̀_•́)ง', '(☞ﾟヮﾟ)☞', '☜(ﾟヮﾟ☜)', '(⌐■_■)', '(•_•) ( •_•)>⌐■-■ (⌐■_■)', 'ヽ(•‿•)ノ', '(¬‿¬)', '( ͡° ͜ʖ ͡°)', '╭∩╮（︶︿︶）╭∩╮', '(ಠ_ಠ)┌∩┐', '┬─┬ ノ( ゜-゜ノ)', '(╯°□°)╯︵ ┻━┻ ︵ ┻━┻', '┻━┻ ︵ ¯\\ (ツ)/ ︵ ┻━┻', '(ノಠ ∀ ಠ)ノ⌒･*:.｡', '(ಠ_ಠ)ಠ_ಠ)', '(ಠ‿ಠ)ಠ_ಠ)', '( ͡ಠ ʖ̯ ͡ಠ)', '┬─┬ ︵ /(.□. \\)', '┻━┻ ︵ ヽ(°□° )ノ ︵ ┻━┻', '┻━┻ ︵ ¯\\( °□° )/¯ ︵ ┻━┻', '(ノಥ,_｣ಥ)ノ彡┻━┻', '┬─┬ ︵( /(.□. \\))', '(╯°□°）╯︵ ┻━┻', '(╯°Д°）╯︵ /(.□ . \\)', '┬─┬ ノ( º _ ºノ )', '┬─┬ ノ( ゜-゜ノ)', '( º _ º )', '( º _ º )', '( º _ º )', '╭∩╮(Ο_Ο)╭∩╮', '╭∩╮(Ο_Ο)╭∩╮', '╭∩╮(Ο_Ο)╭∩╮', '(☞ﾟヮﾟ)☞', '(☞ﾟヮﾟ)☞', '☜(ﾟヮﾟ☜)', '☜(ﾟヮﾟ☜)', '☜(ﾟヮﾟ☜)', 'ʕ •ᴥ• ʔ', 'ʕ •ᴥ• ʔ', 'ʕ •ᴥ• ʔ', '(づ￣ ³￣)づ', '(づ￣ ³￣)づ', '(つ≧▽≦)つ', '(つ≧▽≦)つ', '(つ≧▽≦)つ', '(つ≧▽≦)つ', '(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧', '(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧', '(*・ω・)ﾉ', '(*・ω・)ﾉ', '(ノ°∀°)ノ', '(ノ°∀°)ノ', '(ノ°∀°)ノ', '(ノ°∀°)ノ', 'ヾ(・ω・`)', 'ヾ(・ω・`)', '( ´ ▽ ` )ﾉ', '( ´ ▽ ` )ﾉ', '( ´ ▽ ` )ﾉ', '( ´ ▽ ` )ﾉ', '( ´ ▽ ` )b', '( ´ ▽ ` )b', 'ε=ε=ε=ε=ε=ε=┌(;￣◇￣)┘', 'ε=ε=ε=ε=ε=ε=┌(;￣◇￣)┘', 'ε=ε=ε=ε=ε=ε=┌(;￣◇￣)┘', 'ε=ε=ε=ε=ε=ε=┌(;￣◇￣)┘'],
+  'Animals': ['ʕ•ᴥ•ʔ', '(=^・ω・^=)', '(=^-ω-^=)', 'ʕ ꈍᴥꈍʔ', '(◕ᴥ◕)', 'U•ᴥ•U', '(ΦωΦ)', '₍ᐢ..ᐢ₎', 'ฅ^•ﻌ•^ฅ', '(🐕)', '(ㅇㅅㅇ❀)', '( ˘ᴥ˘ )', '(◉θ◉)', '(=o_o=)', 'ᶘ ᵒᴥᵒᶅ', 'ʕ̯•͡ᴥ•͡ʔ', 'ʕ>Toᴥo<ʔ', '(ᵔᴥᵔ)', 'ʕ•̫͡•ʔ', 'ʕ•ᴥ•ʔ', 'ʕ •ᴥ• ʔ', 'ʕ•́•̀ʔ', 'ʕ◉ᴥ◉ʔ', 'ʕ⁰̈ʔ', 'ʕಠᴥಠʔ', 'ʕ•̠͡•ʔ', 'ʕ•͡ˑ͓•ʔ', 'ʕ•̫͡•ʔ', 'ʕ•͓͡•ʔ', 'ʕꈍᴥꈍʔ', 'ʕ≧ᴥ≦ʔ', 'ʕつ◕ᴥ◕ʔつ', 'ʕง•ᴥ•ʔง', 'ʕᵔᴥᵔʔ', '(=｀ω´=)', 'ฅ(• ɪ •)ฅ', 'ฅ(• wget •)ฅ', 'ฅ(=๏ᆺ๏=)ฅ', '(=^-ω-^=)', '(=^ｪ^=)', '(=^･･^=)', '(=^･ｪ･^=)', 'ฅ(•ㅅ•❀)ฅ', 'ฅ(•ㅅ•)ฅ', 'ฅ(×ω×)ฅ', 'ฅ(˘ω˘ )ฅ', 'ฅ( ꒪◦꒪)ฅ', 'ฅ(ﾐ⚈ ﻌ ⚈ﾐ)ฅ', 'ฅ(๑*д*๑)ฅ', 'ฅ(๑˃ᴗ˂)ฅ', 'ฅ(๑˙o˙๑)ฅ', 'ฅ(ﾐ◕ ༝ ◕ﾐ)ฅ', 'ฅ(ﾐ◉ ਊ ◉ﾐ)ฅ', 'ฅ(ﾐ⚈ llvm ⚈ﾐ)ฅ', 'ฅ(=ʘᆽʘ=)ฅ', 'ฅ(>_<)ฅ', '(=ﾟ･ﾟ=)ｿ', '(=;ﾟ∀ﾟ=)', '(=´∀｀)=', 'U・x・U', 'U・ﻌ・U', 'U・ᴥ・U', 'U^ｪ^U', 'V●ᴥ●V', '( ˘ᴥ˘ )', '( ˘ᴥ˘ )', '( ˘ᴥ˘ )', 'ʕ•ᴥ•ʔ', 'ʕ•ᴥ•ʔ', 'ʕ•ᴥ•ʔ', '(=^・ω・^=)', '(=^・ω・^=)', '(=^・ω・^=)', '(=^-ω-^=)', '(=^-ω-^=)', '(=^-ω-^=)', 'ʕ ꈍᴥꈍʔ', 'ʕ ꈍᴥꈍʔ', 'ʕ ꈍᴥꈍʔ'],
+  'Lenny': ['( ͡° ͜ʖ ͡°)', '( ͡°( ͡° ͜ʖ( ͡° ͜ʖ ͡°)ʖ ͡°) ͡°)', '( ͡° ʖ̯ ͡°)', '( ͡ಠ ʖ̯ ͡ಠ)', '( ͡⚆ ͜ʖ ͡⚆)', '( ͡~ ͜ʖ ͡°)', '( ͡ʘ╭͜ʖ╮͡ʘ)', '( ͡°╭͜ʖ╮͡°)', '( ͝° ͜ʖ͡°)', '( ͡° ͜ʖ ͡°)( ͡° ͜ʖ ͡°)', 'ᕦ( ͡° ͜ʖ ͡°)ᕤ', '( ͡°ᴥ ͡°)', '( ͡ಠ╭͜ʖ╮͡ಠ)', '( ͡° ͜ʖ ͡°)ﾉ⌐■-■', '( ͡° ͜ʖ ͡°) □ -□ ', '(つ ͡° ͜ʖ ͡°)つ', 'ʕ •ᴥ• ʔ', '( ͡° ͜ʖ ͡°)ノ', '( ͡° ͜ʖ ͡°)ノ', '( ͡° ͜ʖ ͡°)ノ', '( ͡° ͜ʖ ͡°)ノ', '( ͡° ͜ʖ ͡°)ノ', '( ͡° ͜ʖ ͡°)ノ', '( ͡° ͜ʖ ͡°)ノ', '( ͡° ͜ʖ ͡°)ノ', '( ͡° ͜ʖ ͡°)ノ', '( ͡° ͜ʖ ͡°)ノ', '( ͡° ͜ʖ ͡°)ノ', '( ͡° ͜ʖ ͡°)ノ', '( ͡° ͜ʖ ͡°)ノ', '( ͡° ͜ʖ ͡°)ノ', '( ͡° ͜ʖ ͡°)ノ'],
+  'Table': ['┬─┬ノ( º _ ºノ)', '┬─┬ ︵ /(.□. \\)', '┻━┻ ︵ ヽ(°□° )ノ ︵ ┻━┻', '┻━┻ ︵ ¯\\( °□° )/¯ ︵ ┻━┻', '(╯°□°)╯︵ ┻━┻ ', '(ノಠ益ಠ)ノ彡┻━┻', '(╯°□°)╯︵ ┻━┻ ︵ ┻━┻', '┻━┻ ︵ヽ(`Д´)ﾉ︵ ┻━┻', '┬─┬ノ(ಠ_ಠノ)', '┻━┻ ︵ ¯\\_༼ ᴼ_o ༽_/¯ ︵ ┻━┻', '(ノಥ,_｣ಥ)ノ彡┻━┻', '┬─┬ ︵(/ .o.\\/)'],
+  'Surprised': ['(☉_☉)', '(º_º)', '(⊙_☉)', '(⊙_⊙)', '(✧ω✧)', '(✧_✧)', '(O_O)', '(o_O)', '(°o°)', '(°ロ°)', '(O.o)', '(o_O)', '(๏_๏)', '(⊚_⊚)', '(◔_◔)', '(◉_◉)', '(◔ ‸ ◔)', '( : ౦ ‸ ౦ : )', '(O_o)', '(o_O)', '(o_O)', '(o_O)', '(o_O)', '(o_O)', '(o_O)', '(o_O)', '(o_O)', '(o_O)', '(o_O)', '(o_O)', '(o_O)', '(o_O)'],
+  'Helpless': ['¯\\_(ツ)_/¯', '╮(╯_╰)╭', '¯\\_(⊙_⊙)_/¯', '¯\\_( ͡° ͜ʖ ͡°)_/¯', '¯\\_(☯ᴥ☯)_/¯', '¯\\_(⊡_⊡)_/¯', '╮(╯▽╰)╭', '┐(´д`)┌', '┐(´～`)┌', '┐(´ー`)┌', '╮(╯_╰)╭', '¯\\_(ツ)_/¯', '¯\\_(ツ)_/¯', '¯\\_(ツ)_/¯', '¯\\_(ツ)_/¯', '¯\\_(ツ)_/¯', '¯\\_(ツ)_/¯', '¯\\_(ツ)_/¯', '¯\\_(ツ)_/¯', '¯\\_(ツ)_/¯', '¯\\_(ツ)_/¯', '¯\\_(ツ)_/¯', '¯\\_(ツ)_/¯', '¯\\_(ツ)_/¯', '¯\\_(ツ)_/¯', '¯\\_(ツ)_/¯', '¯\\_(ツ)_/¯', '¯\\_(ツ)_/¯', '¯\\_(ツ)_/¯', '¯\\_(ツ)_/¯'],
+  'Other': ['(づ￣ ³￣)づ', '(つ≧▽≦)つ', '(ノ^_^)ノ', 'ヾ(・ω・`)', '( ´ ▽ ` )b', '(*^▽^*)', '(◕‿◕)♡', '(◍•ᴗ•◍)❤', 'ε=ε=ε=ε=ε=ε=┌(;￣◇￣)┘', 'ψ(｀∇´)ψ', '( ´ ∀ `)♥', '( ˘ ³˘)♥', '⊂(◉‿◉)つ', 'ヾ(●´∀｀●)', '(*´ω｀*)', '(´･ω･`)', '( •ω• )', '(*_*)', '(ू˃̣̣̥̥̥̣̣̥‸˂̣̣̥̥̥̣̣̥ )', 'φ(゜▽゜*)♪', '♪(´ε` )', '(＾▽＾)', '(^_^)b', 'ヾ(☆▽☆)', '(o_0)!', '(O_o)', '( ﾟヮﾟ)', '(; ͡° ͜ʖ ͡°)', '(>人<)', '(X_X)', '(×_×)', '(×_×;）', '(*_*)', '(・・;)', '(￣～￣;)', '(＠_＠)', '(o_O)', '(O_o)', '(o_o)', '(O_O)', '(o.O)', '(O.o)', '( :o)', '( :O)', '( :0)', '(:0)', '( :0 )', '( :O )', '( :o )', '( :0)', '( :O)', '( :o)']
+};
 
-  const ASCII_ART = [':)',':(',':D',':P',';)',':O','XD','B)',':|',':/','>:(',':\')','<3','\\o/','-_-','^_^','O_O','>_<','T_T','UwU','OwO',':^)','¯\\_(ツ)_/¯','( ͡° ͜ʖ ͡°)','ಠ_ಠ','(☞ﾟヮﾟ)☞'];
+const ASCII_ART = [
+  ':)', ':(', ':D', ':P', ';)', ':O', 'XD', 'B)', ':|', ':/', '>:(', ':\'(', '<3', '\\o/', '-_-', '^_^', 'O_O', '>_<', 'T_T', 'UwU', 'OwO', ':^)',
+  '¯\\_(ツ)_/¯', '( ͡° ͜ʖ ͡°)', 'ಠ_ಠ', '(☞ﾟヮﾟ)☞', '☜(ﾟヮﾟ☜)', '(⌐■_■)', 'ヽ(•‿•)ノ', '(¬‿¬)', 'ʕ•ᴥ•ʔ', '(つゝ´)', '(◕‿◕)', '(≧◡≦)', '(ง’̀-‘́)ง',
+  '(╯°□°）╯︵ ┻━┻', '┬─┬ ノ( ゜-゜ノ)', '┻━┻ ︵ヽ(`Д´)ﾉ︵ ┻━┻', '( •_•) ( •_•)>⌐■-■ (⌐■_■)', '(╮°-°)╮┳━┳', '(╯°□°)╯︵ ┻━┻ ︵ ┻━┻',
+  '( ͡ᵔ ͜ʖ ͡ᵔ )', '( ͝° ͜ʖ͡°)', '( ͡ʘ╭͜ʖ╮͡ʘ)', '(͡° ͜ ͡°)', 'ʕ̯•͡ᴥ•͡ʔ', 'ᶘ ᵒᴥᵒᶅ', 'ʕ•ᴥ•ʔ', 'ʕ ꈍᴥꈍʔ', 'ʕ̯•͡ᴥ•͡ʔ',
+  'ヽ(=^･ω･^=)丿', 'UwU', 'OwO', '>w<', '.w.', 'nwn', '^w^', '◕‿◕', 'ಠ_ಠ', 'ಠ益ಠ', 'ಥ_ಥ', '( ≖‿≖)', '(¬‿¬ )',
+  '( ˘ ɜ˘)♬', '♫♪.ılılıll|̲̅̅●̲̅̅|̲̅̅=̲̅̅|̲̅̅●̲̅̅|llılılı.♪♫', '(♬ ﾟ∀ﾟ)♪', 'ヾ(⌐■_■)ノ♪', '┏(・o･)┛♪┗ ( ･o･)┓♪',
+  '(▀̿Ĺ̯▀̿ ̿)', '( ͡° ͜ʖ ͡°)╭∩╮', '(╭☞•́•̀)╭☞', '(☞ﾟヮﾟ)☞', '☜(ﾟヮﾟ☜)', 'ಠ_ರೃ', 'ヽ(｀Д´)ﾉ', '( ͝° ͜ʖ͡°)',
+  'ᕦ(ò_óˇ)ᕤ', 'ᕙ(⇀‸↼‶)ᕗ', 'ᕕ( ᐛ )ᕗ', '(•̀ᴗ•́)و', '(ง •̀_•́)ง', '(ಥ﹏ಥ)', '(╯°□°）╯︵ ┻━┻', '(ノಠ益ಠ)ノ',
+  ':)', ':-)', ':(', ':-(', ':D', ':-D', ';)', ';-)', ':P', ':-P', ':p', ':-p', ':O', ':-O', ':o', ':-o', ':|', ':-|',
+  ':/', ':-/', ':S', ':-S', ':$', ':-$', 'XD', 'xD', 'Xd', 'xd', 'X-D', 'x-D', 'X=P', 'x=p', '>:(', '>:-(', '>:)', '>:-)',
+  '>:D', '>:-D', '>:P', '>:-P', ':\'(', ':\'[', ':\'-(', ':\'-[', ':*)', ':-*)', 'B)', 'B-)', '8)', '8-)', 'B-)',
+  ':3', ':-3', ':>', ':->', ':<', ':-<', ':]', ':-]', ':[', ':-[', ':}', ':-}', ':{', ':-{', '=)', '=]', '=D', '=P',
+  '=3', '=(', '=[', '=/', '=|', '=O', '=o', '=*', '=3', '=X', '=x', '>:3', '>:-3', '>:]', '>:-]', '>:[', '>:-[',
+  ';-);]', ';-[', ';-P', ';-p', ';-D', ';-O', ';-o', ';-3', ';-*', ';-X', ';-x',
+  '(o) (o)', '(O) (O)', '(o_O)', '(O_o)', '(o_o)', '(O_O)', '(o.O)', '(O.o)', '(o_0)', '(O_0)', '(0_o)', '(0_O)',
+  '(o.0)', '(O.0)', '(o.o)', '(O.O)', '(o_0)', '(O_0)',
+  '(@_@)', '(+_+)', '(x_x)', '(X_X)', '(*_*)', '(=_=)', '(-_-)', '(>_<)',
+  '<3', '</3', '<\\3', '<//3', '^_^', '^^', '^.^', '^_^', '^_~', '^_~', '^^;', '^^;', '^_^;', '^_^;', '^^;;', '^^;;', '^_^;;', '^_^;;',
+  'o_O', 'O_o', 'o.o', 'O.O', 'o_o', 'O_O', 'o.O', 'O.o', 'o_0', 'O_0', '0_o', '0_O', 'o.0', 'O.0', 'o.o', 'O.O',
+  '-_-', '-_-', '-_-', '-_-', '-_-', '-_-', '-_-', '-_-', '-_-', '-_-', '-_-', '-_-', '-_-', '-_-', '-_-',
+  'T_T', 'ToT', 'T_T', 'ToT', 'T_T', 'ToT', 'T_T', 'ToT', 'T_T', 'ToT', 'T_T', 'ToT', 'T_T', 'ToT', 'T_T',
+  'UwU', 'OwO', 'uwu', 'owo', 'UwU', 'OwO', 'uwu', 'owo', 'UwU', 'OwO', 'uwu', 'owo', 'UwU', 'OwO',
+  ':innocent:', ':angel:', ':wink:', ':blush:', ':slight_smile:', ':smile:', ':laughing:', ':relaxed:', ':smirk:', ':expressionless:',
+  ':unamused:', ':rolling_eyes:', ':thinking:', ':zipper_mouth:', ':neutral_face:', ':no_mouth:', ':dizzy_face:', ':grimacing:',
+  ':sweat_smile:', ':joy:', ':rofl:', ':smiley:', ':grinning:', ':smile:', ':grin:', ':laughing:', ':wink:', ':blush:',
+  ':yum:', ':stuck_out_tongue:', ':stuck_out_tongue_winking_eye:', ':stuck_out_tongue_closed_eyes:', ':disappointed:', ':worried:',
+  ':angry:', ':rage:', ':cry:', ':persevere:', ':triumph:', ':relieved:', ':sleepy:', ':tired_face:', ':dizzy:',
+  ':hushed:', ':open_mouth:', ':astonished:', ':scream:', ':scream_cat:', ':flushed:', ':frowning:', ':anguished:',
+  ':fearful:', ':cold_sweat:', ':disappointed_relieved:', ':weary:', ':sob:', ':confounded:', ':tired_face:',
+  ':mask:', ':thermometer_face:', ':head_bandage:', ':sleeping:', ':zzz:', ':poop:', ':smiling_imp:', ':imp:',
+  ':japanese_ogre:', ':japanese_goblin:', ':skull:', ':skull_and_crossbones:', ':ghost:', ':alien:', ':space_invader:',
+  ':robot:', ':jack_o_lantern:'
+];
 
   // ═══════════════════════════════════════════════
   //  STORAGE KEYS
@@ -164,8 +203,9 @@
     menuRadius:10,tileRadius:10,gapEmoji:8,gapLarge:10,
     bg:'#2f3136',bgAlpha:1.0,text:'#dcddde',accent:'#5865f2',
     borderColor:'#3a3b41',borderWidth:1,shadow:0.6,
+    scrollbarWidth:8, scrollbarThumb:'#454545', scrollbarTrack:'rgba(0,0,0,0.1)',
     fontFamily:'"Segoe UI",Tahoma,Geneva,Verdana,sans-serif',
-    uiFontSize:14,tileBg:'#202225',hoverScale:1.02,glowStrength:10,
+    uiFontSize:14,tileBg:'#202225',hoverScale:1.05,glowStrength:10,
     starColor:'#f1c40f',starBg:'rgba(0,0,0,.35)',starBorder:'#3a3b41',
     starTop:6,starRight:6,starSize:28,starSmSize:22,
     btnRadius:8,searchRadius:10,searchBorder:'#444',
@@ -376,11 +416,30 @@
     else if(S.insertFormat==='custom'&&S.insertTemplate) code=S.insertTemplate.replace(/\$\{url\}/g,item.url||'').replace(/\$\{size\}/g,size).replace(/\$\{name\}/g,item.name||'');
     else code=`[img=${size}]${item.url}[/img] `;
 
-    const ids=['chatbox__messages-create','new-comment__textarea','reply-comment','bbcode-message','bbcode-content','bbcode-signature','bbcode-about'];
-    const input=document.querySelector(ids.map(id=>`textarea#${id}`).join(', '));
+    // Target Logic
+    let input = null;
+
+    // 1. Try specific tracker classes (previous request)
+    input = document.querySelector('textarea.form__textarea.chatV2__input');
+
+    // 2. Try IRC (The Lounge, Kiwi, generic)
+    if(!input) input = document.querySelector('#input, #chat-input, .irc-input, textarea.irc-input, input.irc-input');
+
+    // 3. Try standard Private Tracker IDs
+    if (!input) {
+        const ids=['chatbox__messages-create','new-comment__textarea','reply-comment','bbcode-message','bbcode-content','bbcode-signature','bbcode-about'];
+        input=document.querySelector(ids.map(id=>`textarea#${id}`).join(', '));
+    }
+
     if(!input)return;
-    if(typeof input.selectionStart==='number'&&typeof input.setRangeText==='function')input.setRangeText(code,input.selectionStart,input.selectionEnd,'end');
-    else input.value+=code;
+
+    // Handle insertion
+    if(typeof input.selectionStart==='number' && typeof input.setRangeText==='function') {
+        input.setRangeText(code, input.selectionStart, input.selectionEnd, 'end');
+    } else {
+        input.value+=code;
+    }
+
     input.focus();
     try{input.dispatchEvent(new Event('input',{bubbles:true}));}catch{}
     addRecent(item);
@@ -480,13 +539,16 @@
   // ═══════════════════════════════════════════════
   function cssVars(){
     const s=S;
-    return`#uni-emoji-menu{--mw:${s.menuWidth}px;--mh:${s.menuHeightPx}px;--mvh:${s.menuMaxHeightVh}vh;--mr:${s.menuRadius}px;--tr:${s.tileRadius}px;--bg:${hexRgba(s.bg,s.bgAlpha)};--txt:${s.text};--acc:${s.accent};--bc:${s.borderColor};--bw:${s.borderWidth}px;--sh:${s.shadow};--et:${s.emojiSize}px;--gh:${s.gifSize}px;--gmc:${s.gifMinCol}px;--ge:${s.gapEmoji}px;--gl:${s.gapLarge}px;--ff:${s.fontFamily};--fs:${s.uiFontSize}px;--tbg:${s.tileBg};--hs:${s.hoverScale};--gs:${s.glowStrength}px;--sc:${s.starColor};--sbg:${s.starBg};--sbc:${s.starBorder};--st:${s.starTop}px;--sr:${s.starRight}px;--ss:${s.starSize}px;--sss:${s.starSmSize}px;--br:${s.btnRadius}px;--xr:${s.searchRadius}px;--xb:${s.searchBorder};--pb:${s.paginationBg};--pab:${s.paginationActiveBg};--pc:${s.paginationColor};--blur:${s.backdropBlur}px;--z:${s.zIndex}}`;
+    return`#uni-emoji-menu{--mw:${s.menuWidth}px;--mh:${s.menuHeightPx}px;--mvh:${s.menuMaxHeightVh}vh;--mr:${s.menuRadius}px;--tr:${s.tileRadius}px;--bg:${hexRgba(s.bg,s.bgAlpha)};--txt:${s.text};--acc:${s.accent};--bc:${s.borderColor};--bw:${s.borderWidth}px;--sh:${s.shadow};--et:${s.emojiSize}px;--gh:${s.gifSize}px;--gmc:${s.gifMinCol}px;--ge:${s.gapEmoji}px;--gl:${s.gapLarge}px;--ff:${s.fontFamily};--fs:${s.uiFontSize}px;--tbg:${s.tileBg};--hs:${s.hoverScale};--gs:${s.glowStrength}px;--sc:${s.starColor};--sbg:${s.starBg};--sbc:${s.starBorder};--st:${s.starTop}px;--sr:${s.starRight}px;--ss:${s.starSize}px;--sss:${s.starSmSize}px;--br:${s.btnRadius}px;--xr:${s.searchRadius}px;--xb:${s.searchBorder};--pb:${s.paginationBg};--pab:${s.paginationActiveBg};--pc:${s.paginationColor};--blur:${s.backdropBlur}px;--z:${s.zIndex};--sbw:${s.scrollbarWidth}px;--sbth:${s.scrollbarThumb};--sbt:${s.scrollbarTrack}}`;
   }
 
-  // I'll keep the CSS identical to the previous version but shorter variable names
   const CSS=`
 #uni-emoji-menu{position:fixed;left:60%;top:10%;width:var(--mw);height:var(--mh);max-height:var(--mvh);background:var(--bg);color:var(--txt);border-radius:var(--mr);border:var(--bw) solid var(--bc);box-shadow:0 8px 24px rgba(0,0,0,var(--sh));padding:10px;display:none;font-family:var(--ff);font-size:var(--fs);user-select:none;flex-direction:column;z-index:var(--z);backdrop-filter:blur(var(--blur));overflow:hidden;box-sizing:border-box}
 #uni-emoji-menu *{box-sizing:border-box}
+#uni-emoji-menu ::-webkit-scrollbar{width:var(--sbw)}
+#uni-emoji-menu ::-webkit-scrollbar-track{background:var(--sbt);border-radius:2px}
+#uni-emoji-menu ::-webkit-scrollbar-thumb{background:var(--sbth);border-radius:2px}
+#uni-emoji-menu ::-webkit-scrollbar-thumb:hover{background:var(--acc)}
 #uni-emoji-menu .hdr{display:flex;align-items:center;justify-content:center;position:relative;margin-bottom:4px;min-height:26px}
 #uni-emoji-menu .hdr .title{font-weight:700;font-size:15px;display:flex;align-items:center;gap:6px}
 #uni-emoji-menu .hdr .ver{color:#888;font-size:11px;font-weight:600}
@@ -507,11 +569,11 @@
 #uni-emoji-menu .sub-tab{font-size:11px;font-weight:600;color:#bbb;background:#1a1b1e;border:1px solid var(--bc);border-radius:6px;padding:3px 8px;cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:4px}
 #uni-emoji-menu .sub-tab:hover{background:#2a2c30;color:#fff}
 #uni-emoji-menu .sub-tab.active{background:var(--acc);color:#fff;border-color:var(--acc)}
-#uni-emoji-menu .eg{display:grid;grid-template-columns:repeat(auto-fill,var(--et));gap:var(--ge);overflow-y:auto;flex:1;padding:4px 4px 8px;justify-content:start}
-#uni-emoji-menu .et{position:relative;width:var(--et);height:var(--et);display:flex;align-items:center;justify-content:center;background:var(--tbg);border-radius:6px;transition:transform .1s,box-shadow .1s}
+#uni-emoji-menu .eg{display:grid;grid-template-columns:repeat(auto-fill,var(--et));gap:var(--ge);overflow-y:auto;flex:1;padding:4px 4px 8px;justify-content:start;}
+#uni-emoji-menu .et{position:relative;width:var(--et);height:var(--et);display:flex;align-items:center;justify-content:center;background:var(--tbg);border-radius:6px;transition:transform .1s,box-shadow .1s; overflow: hidden;}
 #uni-emoji-menu .et img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;cursor:pointer}
 #uni-emoji-menu .et:hover{transform:scale(var(--hs));box-shadow:0 0 var(--gs) var(--acc)}
-#uni-emoji-menu .et .te{font-size:calc(var(--et)*.6);cursor:pointer;line-height:1;text-align:center}
+#uni-emoji-menu .et .te{cursor:pointer;line-height:1;text-align:center;font-size:28px;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
 #uni-emoji-menu .sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:var(--gl);overflow-y:auto;flex:1;padding:6px 4px 10px;position:relative}
 #uni-emoji-menu .gg{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--gmc),1fr));gap:var(--gl);overflow-y:auto;flex:1;padding:6px 4px 10px;position:relative}
 #uni-emoji-menu .tl{position:relative;width:100%;height:var(--gh);background:var(--tbg);border-radius:var(--tr);display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .1s,box-shadow .1s;overflow:hidden}
@@ -1030,21 +1092,65 @@
   }
 
   // ═══════════════════════════════════════════════
-  //  SETTINGS (abbreviated - same as before)
+  //  SETTINGS (EXPANDED)
   // ═══════════════════════════════════════════════
   function showSettings(){
     activeTab='settings';setTabUI('settings');hideAll();sPanel.style.display='block';
-    // Build settings - keeping it shorter, same functionality
-    sPanel.innerHTML=`<div class="section"><h3><i class="fa-solid fa-sliders"></i> Settings</h3>
+    sPanel.innerHTML=`
+<div class="section"><h3><i class="fa-solid fa-sliders"></i> General</h3>
 <div class="row"><label class="cb"><input type="checkbox" id="x-close" ${S.closeOnInsert?'checked':''}> Close on insert</label></div>
 <div class="row"><label class="cb"><input type="checkbox" id="x-compact" ${S.compactMode?'checked':''}> Compact mode</label></div>
 <div class="row"><label class="cb"><input type="checkbox" id="x-tips" ${S.showTooltips?'checked':''}> Tooltips</label></div>
 <div class="row"><label class="cb"><input type="checkbox" id="x-gstar" ${S.showGifStar?'checked':''}> GIF star</label></div>
 <div class="row"><label class="cb"><input type="checkbox" id="x-gtitles" ${S.gifShowTitles?'checked':''}> GIF titles</label></div>
 </div>
+
+<div class="section"><h3><i class="fa-solid fa-palette"></i> Appearance</h3>
+<div style="opacity:.6;font-size:10px;margin-bottom:6px">Customize the look and feel of the menu.</div>
+
+<h4 style="margin:6px 0 4px;color:var(--acc)"><i class="fa-solid fa-window-maximize"></i> Menu</h4>
+<div class="row"><label style="min-width:100px">Width</label><input type="number" class="mini" id="s-mw" value="${S.menuWidth}"> px</div>
+<div class="row"><label style="min-width:100px">Height</label><input type="number" class="mini" id="s-mh" value="${S.menuHeightPx}"> px</div>
+<div class="row"><label style="min-width:100px">Border Radius</label><input type="number" class="mini" id="s-mr" value="${S.menuRadius}"> px</div>
+<div class="row"><label style="min-width:100px">Border Width</label><input type="number" class="mini" id="s-bw" value="${S.borderWidth}"> px</div>
+<div class="row"><label style="min-width:100px">Shadow</label><input type="range" min="0" max="1" step="0.1" id="s-sh" value="${S.shadow}"><span class="rv">${S.shadow}</span></div>
+<div class="row"><label style="min-width:100px">Backdrop Blur</label><input type="number" class="mini" id="s-blur" value="${S.backdropBlur}"> px</div>
+
+<h4 style="margin:8px 0 4px;color:var(--acc)"><i class="fa-solid fa-droplet"></i> Colors</h4>
+<div class="row"><label style="min-width:100px">Background</label><input type="color" id="s-bg" value="${S.bg}"></div>
+<div class="row"><label style="min-width:100px">Text</label><input type="color" id="s-txt" value="${S.text}"></div>
+<div class="row"><label style="min-width:100px">Accent</label><input type="color" id="s-acc" value="${S.accent}"></div>
+<div class="row"><label style="min-width:100px">Border</label><input type="color" id="s-bc" value="${S.borderColor}"></div>
+<div class="row"><label style="min-width:100px">Tile BG</label><input type="color" id="s-tbg" value="${S.tileBg}"></div>
+
+<h4 style="margin:8px 0 4px;color:var(--acc)"><i class="fa-solid fa-grip"></i> Grid & Tiles</h4>
+<div class="row"><label style="min-width:100px">Emoji Size</label><input type="number" class="mini" id="s-es" value="${S.emojiSize}"> px</div>
+<div class="row"><label style="min-width:100px">GIF Height</label><input type="number" class="mini" id="s-gs" value="${S.gifSize}"> px</div>
+<div class="row"><label style="min-width:100px">Emoji Gap</label><input type="number" class="mini" id="s-ge" value="${S.gapEmoji}"> px</div>
+<div class="row"><label style="min-width:100px">GIF Gap</label><input type="number" class="mini" id="s-gl" value="${S.gapLarge}"> px</div>
+<div class="row"><label style="min-width:100px">Tile Radius</label><input type="number" class="mini" id="s-tr" value="${S.tileRadius}"> px</div>
+<div class="row"><label style="min-width:100px">Hover Scale</label><input type="range" min="1" max="1.2" step="0.01" id="s-hs" value="${S.hoverScale}"><span class="rv">${S.hoverScale}</span></div>
+
+<h4 style="margin:8px 0 4px;color:var(--acc)"><i class="fa-solid fa-bars-progress"></i> Scrollbar</h4>
+<div class="row"><label style="min-width:100px">Width</label><input type="number" class="mini" id="s-sbw" value="${S.scrollbarWidth}"> px</div>
+<div class="row"><label style="min-width:100px">Thumb Color</label><input type="color" id="s-sbth" value="${S.scrollbarThumb}"></div>
+<div class="row"><label style="min-width:100px">Track Color</label><input type="color" id="s-sbt" value="${S.scrollbarTrack}"></div>
+
+<div class="row" style="margin-top:10px"><button class="btn" id="s-apply"><i class="fa-solid fa-check"></i> Apply Changes</button></div>
+</div>
+
+<div class="section"><h3><i class="fa-solid fa-code"></i> Insert Format</h3>
+<div class="row"><label style="min-width:100px">Format</label><select class="sel" id="s-fmt">
+<option value="bbcode" ${S.insertFormat==='bbcode'?'selected':''}>BBCode</option>
+<option value="markdown" ${S.insertFormat==='markdown'?'selected':''}>Markdown</option>
+<option value="html" ${S.insertFormat==='html'?'selected':''}>HTML</option>
+<option value="url" ${S.insertFormat==='url'?'selected':''}>URL Only</option>
+</select></div>
+</div>
+
 <div class="section"><h3><i class="fa-solid fa-key"></i> API Keys</h3>
 <div style="opacity:.6;font-size:10px;margin-bottom:6px">Stored locally only</div>
-${['tenor','giphy','imgur','tumblr'].map(p=>`<div class="row"><label style="min-width:80px">${p}</label><span class="api-disp ${hasKey(p)?'has':''}">${hasKey(p)?maskK(getKey(p)):'Not set'}</span>
+ ${['tenor','giphy','imgur','tumblr'].map(p=>`<div class="row"><label style="min-width:80px">${p}</label><span class="api-disp ${hasKey(p)?'has':''}">${hasKey(p)?maskK(getKey(p)):'Not set'}</span>
 <button class="btn sec" data-ed="${p}"><i class="fa-solid fa-pen"></i></button>
 <button class="btn" data-ts="${p}"><i class="fa-solid fa-vial"></i></button>
 <span class="badge" id="st-${p}">${hasKey(p)?'OK':''}</span></div>
@@ -1063,19 +1169,78 @@ ${['tenor','giphy','imgur','tumblr'].map(p=>`<div class="row"><label style="min-
 <button class="btn sec" id="x-cc"><i class="fa-solid fa-broom"></i> Clear Cache</button></div>
 </div>`;
 
-    // Bind
-    const sp=sPanel;
-    const bk=(id,key,cb2)=>{const el=sp.querySelector('#'+id);if(el)el.addEventListener('change',()=>{S[key]=el.checked;saveS();cb2?.();});};
+    // Bind General
+    const bk=(id,key,cb2)=>{const el=sPanel.querySelector('#'+id);if(el)el.addEventListener('change',()=>{S[key]=el.checked;saveS();cb2?.();});};
     bk('x-close','closeOnInsert');bk('x-compact','compactMode',()=>applyVars());bk('x-tips','showTooltips');bk('x-gstar','showGifStar');bk('x-gtitles','gifShowTitles');
 
+    // Bind Appearance Inputs
+    const bindNum = (id, key) => {
+        const el = sPanel.querySelector('#'+id);
+        if(el) el.addEventListener('change', () => {
+            let v = parseFloat(el.value);
+            if(!isNaN(v)){ S[key] = v; saveS(); applyVars(); if(el.nextElementSibling && el.nextElementSibling.classList.contains('rv')) el.nextElementSibling.textContent = v; }
+        });
+    };
+    const bindColor = (id, key) => {
+        const el = sPanel.querySelector('#'+id);
+        if(el) el.addEventListener('input', () => { S[key] = el.value; saveS(); applyVars(); });
+    };
+
+    // Menu
+    bindNum('s-mw', 'menuWidth');
+    bindNum('s-mh', 'menuHeightPx');
+    bindNum('s-mr', 'menuRadius');
+    bindNum('s-bw', 'borderWidth');
+    bindNum('s-blur', 'backdropBlur');
+    // Range for Shadow
+    const shEl = sPanel.querySelector('#s-sh');
+    if(shEl) shEl.addEventListener('input', (e) => {
+        let v = parseFloat(e.target.value);
+        S.shadow = v; saveS(); applyVars();
+        e.target.nextElementSibling.textContent = v;
+    });
+
+    // Colors
+    bindColor('s-bg', 'bg');
+    bindColor('s-txt', 'text');
+    bindColor('s-acc', 'accent');
+    bindColor('s-bc', 'borderColor');
+    bindColor('s-tbg', 'tileBg');
+
+    // Grid
+    bindNum('s-es', 'emojiSize');
+    bindNum('s-gs', 'gifSize');
+    bindNum('s-ge', 'gapEmoji');
+    bindNum('s-gl', 'gapLarge');
+    bindNum('s-tr', 'tileRadius');
+    // Range for Hover Scale
+    const hsEl = sPanel.querySelector('#s-hs');
+    if(hsEl) hsEl.addEventListener('input', (e) => {
+        let v = parseFloat(e.target.value);
+        S.hoverScale = v; saveS(); applyVars();
+        e.target.nextElementSibling.textContent = v;
+    });
+
+    // Scrollbar
+    bindNum('s-sbw', 'scrollbarWidth');
+    bindColor('s-sbth', 'scrollbarThumb');
+    bindColor('s-sbt', 'scrollbarTrack');
+
+    sPanel.querySelector('#s-apply')?.addEventListener('click', ()=>{ applyVars(); notice('Theme updated'); });
+
+    // Bind Format
+    const fmtSel = sPanel.querySelector('#s-fmt');
+    if(fmtSel) fmtSel.addEventListener('change', () => { S.insertFormat = fmtSel.value; saveS(); });
+
+    // Bind API
     ['tenor','giphy','imgur','tumblr'].forEach(p=>{
-      sp.querySelector(`[data-ed="${p}"]`)?.addEventListener('click',()=>{const r=sp.querySelector(`#er-${p}`);if(r)r.style.display='flex';});
-      sp.querySelector(`[data-cn="${p}"]`)?.addEventListener('click',()=>{const r=sp.querySelector(`#er-${p}`);if(r)r.style.display='none';});
-      sp.querySelector(`[data-sv="${p}"]`)?.addEventListener('click',()=>{const v=sp.querySelector(`#ki-${p}`)?.value?.trim();if(!v)return;setKey(p,v);showSettings();notice(`${p} key saved`);});
-      sp.querySelector(`[data-dl="${p}"]`)?.addEventListener('click',()=>{if(!confirm(`Delete ${p} key?`))return;setKey(p,'');showSettings();notice(`${p} key deleted`);});
-      sp.querySelector(`[data-ts="${p}"]`)?.addEventListener('click',async()=>{
-        const st=sp.querySelector(`#st-${p}`);if(st){st.textContent='…';st.className='badge badge-warn';}
-        try{const k=sp.querySelector(`#ki-${p}`)?.value?.trim()||getKey(p);if(!k)throw 0;let ok=false;
+      sPanel.querySelector(`[data-ed="${p}"]`)?.addEventListener('click',()=>{const r=sPanel.querySelector(`#er-${p}`);if(r)r.style.display='flex';});
+      sPanel.querySelector(`[data-cn="${p}"]`)?.addEventListener('click',()=>{const r=sPanel.querySelector(`#er-${p}`);if(r)r.style.display='none';});
+      sPanel.querySelector(`[data-sv="${p}"]`)?.addEventListener('click',()=>{const v=sPanel.querySelector(`#ki-${p}`)?.value?.trim();if(!v)return;setKey(p,v);showSettings();notice(`${p} key saved`);});
+      sPanel.querySelector(`[data-dl="${p}"]`)?.addEventListener('click',()=>{if(!confirm(`Delete ${p} key?`))return;setKey(p,'');showSettings();notice(`${p} key deleted`);});
+      sPanel.querySelector(`[data-ts="${p}"]`)?.addEventListener('click',async()=>{
+        const st=sPanel.querySelector(`#st-${p}`);if(st){st.textContent='…';st.className='badge badge-warn';}
+        try{const k=sPanel.querySelector(`#ki-${p}`)?.value?.trim()||getKey(p);if(!k)throw 0;let ok=false;
           if(p==='tenor')ok=!!(await fetchJson(`https://tenor.googleapis.com/v2/featured?key=${encodeURIComponent(k)}&limit=1&media_filter=gif`))?.results;
           if(p==='giphy')ok=!!(await fetchJson(`https://api.giphy.com/v1/gifs/trending?api_key=${encodeURIComponent(k)}&limit=1`))?.data;
           if(p==='imgur')ok=!!(await fetchJson('https://api.imgur.com/3/credits',{Authorization:`Client-ID ${k}`}))?.data;
@@ -1085,9 +1250,9 @@ ${['tenor','giphy','imgur','tumblr'].map(p=>`<div class="row"><label style="min-
       });
     });
 
-    sp.querySelector('#x-slg')?.addEventListener('click',async()=>{S.localGifUrls=sp.querySelector('#x-lg')?.value?.trim()||'';saveS();gifsLoaded=false;await loadLocalGifs();const st=sp.querySelector('#x-lgst');if(st){st.textContent=localGifStatus;st.className='badge badge-ok';}});
-    sp.querySelector('#x-ra')?.addEventListener('click',()=>{if(!confirm('Reset appearance?'))return;Object.assign(S,DEFAULTS);saveS();applyVars();showSettings();});
-    sp.querySelector('#x-rall')?.addEventListener('click',()=>{
+    sPanel.querySelector('#x-slg')?.addEventListener('click',async()=>{S.localGifUrls=sPanel.querySelector('#x-lg')?.value?.trim()||'';saveS();gifsLoaded=false;await loadLocalGifs();const st=sPanel.querySelector('#x-lgst');if(st){st.textContent=localGifStatus;st.className='badge badge-ok';}});
+    sPanel.querySelector('#x-ra')?.addEventListener('click',()=>{if(!confirm('Reset appearance?'))return;Object.assign(S,DEFAULTS);saveS();applyVars();showSettings();});
+    sPanel.querySelector('#x-rall')?.addEventListener('click',()=>{
       if(!confirm('Reset EVERYTHING?'))return;
       Object.assign(S,DEFAULTS);saveS();applyVars();
       _favV2.emoji.clear();_favV2.sticker.clear();_favV2.gif.clear();
@@ -1099,7 +1264,7 @@ ${['tenor','giphy','imgur','tumblr'].map(p=>`<div class="row"><label style="min-
       GM_Set(K.emojiCache,'');GM_Set(K.emojiCacheTs,'0');
       showSettings();notice('Everything reset');
     });
-    sp.querySelector('#x-cc')?.addEventListener('click',()=>{GM_Set(K.emojiCache,'');GM_Set(K.emojiCacheTs,'0');notice('Cache cleared');});
+    sPanel.querySelector('#x-cc')?.addEventListener('click',()=>{GM_Set(K.emojiCache,'');GM_Set(K.emojiCacheTs,'0');notice('Cache cleared');});
   }
 
   // ═══════════════════════════════════════════════
