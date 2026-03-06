@@ -8,11 +8,11 @@
 > This script has been tested and currently works only on Unity 3D v9.1.7. I haven’t found any issues so far, and if it continues to work in future versions, that would be great!
 
 > To-do list
-- [ ] Load faster the emojis
+- [X] Load faster the emojis
 - [X] Many things added
-- [ ] Fix API key's saving process
-- [ ] Fix Menu UI Responsive and settings buttons etc..
-- [ ] Fix Settings UI need a lot of CSS work.
+- [X] Fix API key's saving process
+- [X] Fix Menu UI Responsive and settings buttons etc..
+- [X] Fix Settings UI need a lot of CSS work.
 
 
 # JSON pack Example
