@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ultimate Emojis
-// @version      1.0.4
+// @version      1.1.0
 // @description  Discord-style emoji/sticker/gif picker with favorites, pagination, search, and a customizable Home screen.
 // @author       ZukoXZoku
 // @icon         https://ptpimg.me/91xfz9.gif
@@ -73,7 +73,7 @@
   // ═══════════════════════════════════════════════
   //  CONSTANTS
   // ═══════════════════════════════════════════════
-  const VERSION = '1.0.5';
+  const VERSION = '1.1.0';
   const LINKS = {
     github: 'https://github.com/ZukoXZoku/Ultimate-Emojis',
     openuserjs: 'https://openuserjs.org/scripts/ZukoXZoku/Ultimate_Emojis',
