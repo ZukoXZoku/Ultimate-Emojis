@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ultimate Emojis
-// @version      1.1.0
+// @version      1.1.1
 // @description  Discord-style emoji/sticker/gif picker with favorites, pagination, search, and a customizable Home screen.
 // @author       ZukoXZoku
 // @icon         https://ptpimg.me/91xfz9.gif
@@ -35,12 +35,8 @@
 
 
   // ═══════════════════════════════════════════════
-  //  Updates: 
-  //  1. Added IRC Support  
-  //  2. Fixed lst.gg chat
-  //  3. Updated the Appearance
-  //  4. Fixed many issues, now it's faster and improved the speed at anything, even lazy load.
-  //  NOTE: Now you can use it at your self-host IRC Channel.
+  //  Updates:
+  //  1. Hotfix gifs bug
   // ═══════════════════════════════════════════════
 
 (function () {
@@ -73,7 +69,7 @@
   // ═══════════════════════════════════════════════
   //  CONSTANTS
   // ═══════════════════════════════════════════════
-  const VERSION = '1.1.0';
+  const VERSION = '1.1.1';
   const LINKS = {
     github: 'https://github.com/ZukoXZoku/Ultimate-Emojis',
     openuserjs: 'https://openuserjs.org/scripts/ZukoXZoku/Ultimate_Emojis',
@@ -584,7 +580,7 @@ const ASCII_ART = [
 #uni-emoji-menu .et .te{cursor:pointer;line-height:1;text-align:center;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
 #uni-emoji-menu .sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:var(--gl);overflow-y:auto;flex:1;padding:6px 4px 10px;position:relative}
 #uni-emoji-menu .gg{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--gmc),1fr));gap:var(--gl);overflow-y:auto;flex:1;padding:6px 4px 10px;position:relative}
-#uni-emoji-menu .tl{position:relative;width:100%;height:var(--gh);background:var(--tbg);border-radius:var(--tr);display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .1s,box-shadow .1s;overflow:hidden}
+#uni-emoji-menu .tl{position:relative;width:100%;height:110px;background:var(--tbg);border-radius:var(--tr);display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .1s,box-shadow .1s;overflow:hidden}
 #uni-emoji-menu .tl img{max-width:100%;max-height:100%;object-fit:contain;border-radius:var(--tr);cursor:pointer}
 #uni-emoji-menu .tl:hover{transform:scale(var(--hs));box-shadow:0 0 var(--gs) var(--acc)}
 #uni-emoji-menu .star,#uni-emoji-menu .ssm{position:absolute;top:var(--st);right:var(--sr);display:grid;place-items:center;background:var(--sbg);border:1px solid var(--sbc);color:var(--sc);border-radius:999px;cursor:pointer;line-height:1;opacity:0;transform:scale(.9);pointer-events:none;transition:opacity .12s,transform .12s}
