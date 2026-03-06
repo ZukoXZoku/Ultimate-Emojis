@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ultimate Emojis
-// @version      1.0.3
+// @version      1.0.4
 // @description  Discord-style emoji/sticker/gif picker with favorites, pagination, search, and a customizable Home screen.
 // @author       ZukoXZoku
 // @icon         https://ptpimg.me/91xfz9.gif
@@ -18,7 +18,6 @@
 // @match        https://darkpeers.org/*
 // @match        https://luminarr.me/*
 // @match        https://lst.gg/*
-// @match        *://*/*
 // @grant        GM_addStyle
 // @grant        GM_setValue
 // @grant        GM_getValue
@@ -33,6 +32,16 @@
 // @connect      www.reddit.com
 // @grant        GM_setClipboard
 // ==/UserScript==
+
+
+  // ═══════════════════════════════════════════════
+  //  Updates: 
+  //  1. Added IRC Support  
+  //  2. Fixed lst.gg chat
+  //  3. Updated the Appearance
+  //  4. Fixed many issues, now it's faster and improved the speed at anything, even lazy load.
+  //  NOTE: Now you can use it at your self-host IRC Channel.
+  // ═══════════════════════════════════════════════
 
 (function () {
   'use strict';
@@ -153,8 +162,7 @@ const ASCII_ART = [
   '(o.0)', '(O.0)', '(o.o)', '(O.O)', '(o_0)', '(O_0)',
   '(@_@)', '(+_+)', '(x_x)', '(X_X)', '(*_*)', '(=_=)', '(-_-)', '(>_<)',
   '<3', '</3', '<\\3', '<//3', '^_^', '^^', '^.^', '^_^', '^_~', '^_~', '^^;', '^^;', '^_^;', '^_^;', '^^;;', '^^;;', '^_^;;', '^_^;;',
-  'o_O', 'O_o', 'o.o', 'O.O', 'o_o', 'O_O', 'o.O', 'O.o', 'o_0', 'O_0', '0_o', '0_O', 'o.0', 'O.0', 'o.o', 'O.O',
-  '-_-', '-_-', '-_-', '-_-', '-_-', '-_-', '-_-', '-_-', '-_-', '-_-', '-_-', '-_-', '-_-', '-_-', '-_-',
+  'o_O', 'O_o', 'o.o', 'O.O', 'o_o', 'O_O', 'o.O', 'O.o', 'o_0', 'O_0', '0_o', '0_O', 'o.0', 'O.0', 'o.o', 'O.O','-_-',
   'T_T', 'ToT', 'T_T', 'ToT', 'T_T', 'ToT', 'T_T', 'ToT', 'T_T', 'ToT', 'T_T', 'ToT', 'T_T', 'ToT', 'T_T',
   'UwU', 'OwO', 'uwu', 'owo', 'UwU', 'OwO', 'uwu', 'owo', 'UwU', 'OwO', 'uwu', 'owo', 'UwU', 'OwO',
   ':innocent:', ':angel:', ':wink:', ':blush:', ':slight_smile:', ':smile:', ':laughing:', ':relaxed:', ':smirk:', ':expressionless:',
@@ -197,7 +205,7 @@ const ASCII_ART = [
   //  DEFAULTS
   // ═══════════════════════════════════════════════
   const DEFAULTS = {
-    emojiSize:48,stickerSize:256,gifSize:140,gifInsertSize:140,
+    emojiSize:48,stickerSize:256,gifSize:256,gifInsertSize:256,
     gifPerPage:24,emojiPerPage:108,stickerPerPage:24,gifMinCol:128,
     gifShowTitles:false,menuWidth:700,menuHeightPx:650,menuMaxHeightVh:75,
     menuRadius:10,tileRadius:10,gapEmoji:8,gapLarge:10,
@@ -406,7 +414,7 @@ const ASCII_ART = [
 
   function insertContent(item){
     if(!item)return;
-    const size=item.type==='emoji'?(S.emojiSize||48):item.type==='sticker'?(S.stickerSize||256):(S.gifInsertSize||S.gifSize||140);
+    const size=item.type==='emoji'?(S.emojiSize||48):item.type==='sticker'?(S.stickerSize||256):(S.gifInsertSize||S.gifSize||256);
     let code;
     if(item.isText){
       code=item.text||item.name||'';
@@ -553,7 +561,7 @@ const ASCII_ART = [
 #uni-emoji-menu .hdr .title{font-weight:700;font-size:15px;display:flex;align-items:center;gap:6px}
 #uni-emoji-menu .hdr .ver{color:#888;font-size:11px;font-weight:600}
 #uni-emoji-menu .hdr .dot{width:7px;height:7px;border-radius:50%;background:#43b581;box-shadow:0 0 5px #43b581;display:inline-block}
-#uni-emoji-menu .hdr .drag{position:absolute;left:6px;cursor:move;color:#aaa;font-size:14px}
+#uni-emoji-menu .hdr .drag{position:absolute;left:6px;cursor:move;color:#aaa;font-size:18px}
 #uni-emoji-menu .hdr .close{position:absolute;right:6px;cursor:pointer;color:#ff7373;font-size:16px;background:none;border:none;line-height:1}
 #uni-emoji-menu .tabs{display:flex;gap:4px;margin:2px 0 4px;flex-wrap:wrap}
 #uni-emoji-menu .tab{font-weight:600;font-size:12px;color:#ccc;background:none;border:none;border-radius:7px;padding:4px 10px;cursor:pointer;opacity:.7;transition:all .15s;display:flex;align-items:center;gap:5px;white-space:nowrap}
@@ -573,7 +581,7 @@ const ASCII_ART = [
 #uni-emoji-menu .et{position:relative;width:var(--et);height:var(--et);display:flex;align-items:center;justify-content:center;background:var(--tbg);border-radius:6px;transition:transform .1s,box-shadow .1s; overflow: hidden;}
 #uni-emoji-menu .et img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;cursor:pointer}
 #uni-emoji-menu .et:hover{transform:scale(var(--hs));box-shadow:0 0 var(--gs) var(--acc)}
-#uni-emoji-menu .et .te{cursor:pointer;line-height:1;text-align:center;font-size:28px;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+#uni-emoji-menu .et .te{cursor:pointer;line-height:1;text-align:center;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
 #uni-emoji-menu .sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:var(--gl);overflow-y:auto;flex:1;padding:6px 4px 10px;position:relative}
 #uni-emoji-menu .gg{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--gmc),1fr));gap:var(--gl);overflow-y:auto;flex:1;padding:6px 4px 10px;position:relative}
 #uni-emoji-menu .tl{position:relative;width:100%;height:var(--gh);background:var(--tbg);border-radius:var(--tr);display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .1s,box-shadow .1s;overflow:hidden}
@@ -631,7 +639,7 @@ const ASCII_ART = [
 #uni-emoji-menu textarea.area{width:100%;min-height:80px;background:#1f2124;color:#e8e8e8;border:1px solid var(--bc);border-radius:7px;padding:6px;font-size:11px;resize:vertical}
 #uni-emoji-menu label.cb{display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer}
 #uni-emoji-menu .recent-grid{display:grid;grid-template-columns:repeat(auto-fill,44px);gap:5px;padding:4px 0}
-#uni-emoji-menu .recent-grid img,.recent-grid .ri{width:44px;height:44px;object-fit:contain;border-radius:5px;cursor:pointer;background:var(--tbg);display:flex;align-items:center;justify-content:center;font-size:20px}
+#uni-emoji-menu .recent-grid img,.recent-grid .ri{width:44px;height:44px;object-fit:contain;border-radius:5px;cursor:pointer;background:var(--tbg);display:flex;align-items:center;justify-content:center;}
 #uni-emoji-menu .recent-grid img:hover,.recent-grid .ri:hover{transform:scale(1.1);box-shadow:0 0 6px var(--acc)}
 #uni-ctx-menu{position:fixed;z-index:2147483647;background:#2b2d31;color:#e3e5e8;border:1px solid #2a2c30;border-radius:7px;min-width:170px;box-shadow:0 8px 28px rgba(0,0,0,.5);padding:3px;display:none}
 #uni-ctx-menu button{width:100%;text-align:left;background:transparent;border:none;color:#e3e5e8;padding:6px 9px;border-radius:5px;cursor:pointer;font-weight:600;font-size:11px;display:flex;align-items:center;gap:6px}
@@ -658,13 +666,13 @@ const ASCII_ART = [
   // ═══════════════════════════════════════════════
   container.innerHTML=`
 <div class="hdr">
-<span class="drag" title="Drag"><i class="fa-solid fa-grip-vertical"></i></span>
-<span class="title"><i class="fa-solid fa-face-grin-stars" style="color:var(--acc)"></i> Ultimate Emojis <span class="ver">v${VERSION}</span> <span class="dot"></span></span>
+<span class="drag" title="Drag"><i class="fa-solid fa-arrows-up-down-left-right"></i></span>
+  <span class="title"><i><img src="https://ptpimg.me/91xfz9.gif" style="width: 27px; height: 25px;" /></i> Ultimate Emojis <span class="ver">v${VERSION}</span> <span class="dot"></span></span>
 <button class="close" title="Close"><i class="fa-solid fa-xmark"></i></button>
 </div>
 <div class="tabs" id="tb"></div>
 <div class="panel" id="p-home"></div>
-<div class="toolbar" id="tb-e" style="display:none"><button class="pill" id="e-fav"><i class="fa-solid fa-star"></i> Fav</button><span style="flex:1"></span><span class="badge" id="e-st"></span></div>
+<div class="toolbar" id="tb-e" style="display:none"><button class="pill" id="e-fav"><i class="fa-solid fa-star" style="color: #e7a423;"></i></button><span style="flex:1"></span><span class="badge" id="e-st"></span></div>
 <div class="sub-tabs" id="e-subs" style="display:none"></div>
 <div class="search-row" id="sr" style="display:none"><input type="text" id="uni-search" placeholder="Search..." autocomplete="off"></div>
 <div class="eg" id="ge" style="display:none"></div>
@@ -677,9 +685,9 @@ const ASCII_ART = [
 <button class="pb" data-p="reddit"><i class="fa-brands fa-reddit"></i> Reddit</button>
 <button class="pb" data-p="tumblr"><i class="fa-brands fa-tumblr"></i> Tumblr</button>
 <span style="flex:1"></span>
-<button class="pill" id="g-fav"><i class="fa-solid fa-star"></i> Fav</button>
+<button class="pill" id="g-fav"><i class="fa-solid fa-star" style="color: #e7a423;"></i></button>
 </div>
-<div class="toolbar" id="tb-s" style="display:none"><button class="pill" id="s-fav"><i class="fa-solid fa-star"></i> Fav</button></div>
+<div class="toolbar" id="tb-s" style="display:none"><button class="pill" id="s-fav"><i class="fa-solid fa-star" style="color: #e7a423;"></i></button></div>
 <div class="sg" id="gs" style="display:none"></div>
 <div class="gg" id="gg" style="display:none"></div>
 <div class="pager" id="pager" style="display:none"></div>
@@ -1108,7 +1116,7 @@ const ASCII_ART = [
 <div class="section"><h3><i class="fa-solid fa-palette"></i> Appearance</h3>
 <div style="opacity:.6;font-size:10px;margin-bottom:6px">Customize the look and feel of the menu.</div>
 
-<h4 style="margin:6px 0 4px;color:var(--acc)"><i class="fa-solid fa-window-maximize"></i> Menu</h4>
+<h4 style="margin:6px 0 4px;color:var(--acc)"><i class="fa-solid fa-gem"></i> Menu</h4>
 <div class="row"><label style="min-width:100px">Width</label><input type="number" class="mini" id="s-mw" value="${S.menuWidth}"> px</div>
 <div class="row"><label style="min-width:100px">Height</label><input type="number" class="mini" id="s-mh" value="${S.menuHeightPx}"> px</div>
 <div class="row"><label style="min-width:100px">Border Radius</label><input type="number" class="mini" id="s-mr" value="${S.menuRadius}"> px</div>
@@ -1131,7 +1139,7 @@ const ASCII_ART = [
 <div class="row"><label style="min-width:100px">Tile Radius</label><input type="number" class="mini" id="s-tr" value="${S.tileRadius}"> px</div>
 <div class="row"><label style="min-width:100px">Hover Scale</label><input type="range" min="1" max="1.2" step="0.01" id="s-hs" value="${S.hoverScale}"><span class="rv">${S.hoverScale}</span></div>
 
-<h4 style="margin:8px 0 4px;color:var(--acc)"><i class="fa-solid fa-bars-progress"></i> Scrollbar</h4>
+<h4 style="margin:8px 0 4px;color:var(--acc)"><i class="fa-solid fa-grip-lines-vertical"></i> Scrollbar</h4>
 <div class="row"><label style="min-width:100px">Width</label><input type="number" class="mini" id="s-sbw" value="${S.scrollbarWidth}"> px</div>
 <div class="row"><label style="min-width:100px">Thumb Color</label><input type="color" id="s-sbth" value="${S.scrollbarThumb}"></div>
 <div class="row"><label style="min-width:100px">Track Color</label><input type="color" id="s-sbt" value="${S.scrollbarTrack}"></div>
@@ -1245,8 +1253,8 @@ const ASCII_ART = [
           if(p==='giphy')ok=!!(await fetchJson(`https://api.giphy.com/v1/gifs/trending?api_key=${encodeURIComponent(k)}&limit=1`))?.data;
           if(p==='imgur')ok=!!(await fetchJson('https://api.imgur.com/3/credits',{Authorization:`Client-ID ${k}`}))?.data;
           if(p==='tumblr')ok=!!(await fetchJson(`https://api.tumblr.com/v2/tagged?tag=gif&api_key=${encodeURIComponent(k)}&limit=1`))?.response;
-          if(st){st.textContent=ok?'OK ✅':'Fail ❌';st.className=`badge ${ok?'badge-ok':'badge-err'}`;}
-        }catch{if(st){st.textContent='Fail ❌';st.className='badge badge-err';}}
+          if(st){st.textContent=ok?'Working':'Fail';st.className=`badge ${ok?'badge-ok':'badge-err'}`;}
+        }catch{if(st){st.textContent='Fail';st.className='badge badge-err';}}
       });
     });
 
